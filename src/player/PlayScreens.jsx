@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, X, Send, LoaderCircle, Hourglass, Lock } from 'lucide-react'
-import { Button, BoardLabel, Jersey } from '../components/ui.jsx'
-import SevenSeg from '../components/SevenSeg.jsx'
-import ShotClock from '../components/ShotClock.jsx'
+import { Check, X, LoaderCircle, Hourglass } from 'lucide-react'
+import { Button, Label, TeamBlob } from '../components/ui.jsx'
+import TimeTrack from '../components/TimeTrack.jsx'
 import Podium from '../components/Podium.jsx'
-import PitchLines from '../components/PitchLines.jsx'
 import RollingNumber from '../components/RollingNumber.jsx'
+import { CornerLobe } from '../components/Lobe.jsx'
 import { ANSWER_PLATES } from '../lib/kits.js'
 import { pointsAt, rankTeams } from '../lib/scoring.js'
 import { pop } from '../lib/motion.js'
@@ -16,12 +15,7 @@ function Dots() {
   return (
     <span className="inline-flex gap-1" aria-hidden="true">
       {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="size-2 rounded-full bg-current"
-          animate={{ y: [0, -6, 0] }}
-          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
-        />
+        <motion.span key={i} className="size-1.5 rounded-full bg-current" animate={{ y: [0, -5, 0] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} />
       ))}
     </span>
   )
@@ -32,29 +26,24 @@ export function WaitingScreen({ game }) {
   const { me, room } = game
   const settingUp = room?.phase === 'setup'
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-10 text-center pitch-stripes">
-      <PitchLines />
+    <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-10 text-center">
+      <CornerLobe corner="tr" className="absolute -top-[20vw] -right-[35vw] w-[95vw] sm:w-[60vw]" />
+      <CornerLobe corner="bl" color="var(--color-pond)" delay={0.1} className="absolute -bottom-[25vw] -left-[30vw] w-[70vw] sm:w-[36vw]" />
       <div className="relative flex flex-col items-center">
         {me && (
-          <motion.div
-            initial={{ scale: 0.3, rotate: -20, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            transition={pop}
-          >
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}>
-              <Jersey kit={me.kit} number={me.number} className="size-44 drop-shadow-[0_18px_20px_rgb(0_0_0/0.3)]" />
+          <motion.div initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={pop}>
+            <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}>
+              <TeamBlob kit={me.kit} number={me.number} className="size-40" textClass="text-6xl" />
             </motion.div>
           </motion.div>
         )}
-        <h1 className="mt-4 font-display text-[clamp(2.5rem,12vw,4rem)] leading-[0.9] font-black text-white uppercase [text-shadow:0_4px_16px_rgb(0_0_0/0.25)]">
-          {me?.name}
-        </h1>
-        <p className="mt-6 inline-flex items-center gap-3 rounded-full bg-board px-5 py-3 font-display text-xl font-extrabold tracking-wide text-led uppercase">
+        <h1 className="display mt-5 text-[clamp(2.25rem,11vw,3.5rem)]">{me?.name}</h1>
+        <p className="mt-6 inline-flex items-center gap-3 rounded-full bg-ink px-5 py-3 text-base font-semibold text-water">
           {settingUp ? t('wait.settingUp') : t('wait.title')}
           <Dots />
         </p>
         {room && (
-          <p className="mt-4 text-lg font-semibold text-chalk">
+          <p className="mt-4 text-sm font-semibold text-ink-2">
             {t('wait.teams', { n: room.teams.length })} · {t(`mode.${room.mode}`)}
           </p>
         )}
@@ -63,35 +52,32 @@ export function WaitingScreen({ game }) {
   )
 }
 
-function MiniBoard({ room, remainingMs }) {
+function Measures({ room, remainingMs }) {
   const { t } = useLang()
   const totalMs = room.duration * 1000
   const pts = pointsAt(remainingMs, totalMs)
   return (
-    <div className="bg-board px-4 pt-3 pb-4">
-      <div className="flex items-end justify-between">
+    <div className="px-4 pt-1 pb-3">
+      <div className="grid grid-cols-3 items-end">
         <div>
-          <BoardLabel className="text-xs">{t('game.question')}</BoardLabel>
-          <div className="mt-1 flex items-center gap-1.5">
-            <SevenSeg value={room.qIndex + 1} className="h-8 text-led" />
-            <span className="font-display text-2xl font-black text-board-text/50">/</span>
-            <SevenSeg value={room.total} className="h-8 text-board-text/70" />
-          </div>
+          <Label>{t('game.question')}</Label>
+          <p className="display tabular text-2xl">
+            {room.qIndex + 1}
+            <span className="text-ink-2">/{room.total}</span>
+          </p>
         </div>
         <div className="text-center">
-          <BoardLabel className="text-xs">{t('game.livePoints')}</BoardLabel>
-          <div className="mt-1">
-            <SevenSeg value={pts} length={4} className="h-8 text-led" label={t('game.livePointsAria', { n: pts })} />
-          </div>
+          <Label>{t('game.livePoints')}</Label>
+          <p className="display tabular text-2xl" aria-label={t('game.livePointsAria', { n: pts })}>
+            {pts}
+          </p>
         </div>
         <div className="text-right">
-          <BoardLabel className="text-xs">{t('game.timeLeft')}</BoardLabel>
-          <div className="mt-1">
-            <SevenSeg value={Math.ceil(remainingMs / 1000)} length={2} className={`h-8 ${remainingMs / totalMs < 0.2 ? 'text-led-hot' : 'text-led'}`} />
-          </div>
+          <Label>{t('game.timeLeft')}</Label>
+          <p className={`display tabular text-2xl ${remainingMs / totalMs < 0.2 ? 'text-alert' : ''}`}>{Math.ceil(remainingMs / 1000)}s</p>
         </div>
       </div>
-      <ShotClock remainingMs={remainingMs} totalMs={totalMs} cells={30} className="mt-3 h-5 bg-board-2" label={t('game.timeLeft')} />
+      <TimeTrack remainingMs={remainingMs} totalMs={totalMs} className="mt-3 h-3" label={t('game.timeLeft')} />
     </div>
   )
 }
@@ -100,7 +86,7 @@ export function ControllerScreen({ game, remainingMs }) {
   const { room } = game
   return (
     <div className="flex flex-1 flex-col">
-      <MiniBoard room={room} remainingMs={remainingMs} />
+      <Measures room={room} remainingMs={remainingMs} />
       {room.mode === 'standard' ? <StandardPad game={game} /> : <CluesPad game={game} />}
     </div>
   )
@@ -115,19 +101,21 @@ function StandardPad({ game }) {
         <motion.button
           key={letter}
           type="button"
-          initial={{ opacity: 0, scale: 0.6, y: 30 }}
+          initial={{ opacity: 0, scale: 0.6, y: 24 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           whileTap={{ scale: 0.92 }}
           transition={{ ...pop, delay: i * 0.05 }}
           onClick={() => game.submitAnswer(i)}
-          className="flex min-h-36 flex-col items-start justify-between rounded-3xl p-4 text-left shadow-[0_8px_0_rgb(0_0_0/0.22)] active:shadow-[0_2px_0_rgb(0_0_0/0.22)]"
+          className="flex min-h-36 flex-col items-start justify-between rounded-[2.25rem] p-5 text-left"
           style={{ background: bg, color: fg }}
         >
           <span className="flex w-full items-center justify-between">
-            <Icon className="size-10 fill-current" aria-hidden="true" />
-            <span className="font-display text-5xl leading-none font-black">{letter}</span>
+            <span className="grid size-11 place-items-center rounded-full bg-water">
+              <Icon className="size-5 fill-current" aria-hidden="true" />
+            </span>
+            <span className="display text-4xl">{letter}</span>
           </span>
-          <span className="text-lg leading-tight font-bold">{tr(options[i])}</span>
+          <span className="text-base leading-tight font-semibold">{tr(options[i])}</span>
         </motion.button>
       ))}
     </div>
@@ -143,33 +131,23 @@ function CluesPad({ game }) {
     if (value.trim()) game.submitAnswer(value.trim())
   }
   return (
-    <form onSubmit={submit} className="mx-auto flex w-full max-w-xl flex-1 flex-col p-4">
-      <p className="font-display text-lg font-extrabold tracking-wide text-ink-2 uppercase">
-        {t('game.cluesPrompt')} <span className="text-ink">{tr(q?.category)}</span>
+    <form onSubmit={submit} className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-4">
+      <p className="display text-xl">
+        <span className="text-ink-2">{t('game.cluesPrompt')}</span> {tr(q?.category)}
       </p>
-      <ol className="mt-3 flex flex-col gap-2">
+      <ol className="mt-4 flex flex-col gap-3">
         {[0, 1, 2, 3].map((i) => {
           const hint = q?.hints[i]
           return (
-            <li key={i}>
+            <li key={i} className="flex items-start gap-3">
+              <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold ${hint ? 'bg-ink text-water' : 'bg-water-2 text-ink-2'}`}>{i + 1}</span>
               <AnimatePresence mode="wait" initial={false}>
                 {hint ? (
-                  <motion.div
-                    key="open"
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={pop}
-                    className="flex items-start gap-3 rounded-xl bg-paper p-3 ring-1 ring-ink/10"
-                  >
-                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-board font-display text-lg font-black text-led">{i + 1}</span>
-                    <span className="text-base leading-snug font-semibold text-ink">{tr(hint)}</span>
-                  </motion.div>
+                  <motion.span key="open" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={pop} className="pt-1 text-base leading-snug font-medium">
+                    {tr(hint)}
+                  </motion.span>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl bg-concrete-2 p-3 text-ink-2">
-                    <span className="grid size-8 place-items-center rounded-lg bg-ink/10 font-display text-lg font-black">{i + 1}</span>
-                    <Lock className="size-4" aria-hidden="true" />
-                    <span className="font-display text-sm font-extrabold tracking-[0.14em] uppercase">{t('game.hintLocked')}</span>
-                  </div>
+                  <span key="locked" className="mt-1.5 h-5 w-2/3 rounded-full bg-water-2" aria-label={t('game.hintLocked')} />
                 )}
               </AnimatePresence>
             </li>
@@ -177,8 +155,8 @@ function CluesPad({ game }) {
         })}
       </ol>
 
-      <label htmlFor="clue-answer" className="mt-6 font-display text-lg font-extrabold tracking-[0.14em] text-ink uppercase">
-        {t('play.yourAnswer')}
+      <label htmlFor="clue-answer" className="mt-8">
+        <Label>{t('play.yourAnswer')}</Label>
       </label>
       <input
         id="clue-answer"
@@ -188,12 +166,11 @@ function CluesPad({ game }) {
         autoComplete="off"
         autoCapitalize="words"
         enterKeyHint="send"
-        className="mt-2 h-16 rounded-2xl bg-paper px-5 text-2xl font-bold text-ink ring-2 ring-ink/10 outline-none placeholder:text-lg placeholder:font-semibold placeholder:text-ink-2/70 focus:ring-4 focus:ring-led"
+        className="mt-2 h-16 rounded-full bg-paper px-6 text-xl font-semibold ring-2 ring-inset ring-ink/15 outline-none placeholder:text-base placeholder:font-medium placeholder:text-ink-2/80 focus:ring-ink"
       />
-      <p className="mt-2 text-sm text-ink-2">{t('play.oneShot')}</p>
+      <p className="mt-2 px-4 text-xs text-ink-2">{t('play.oneShot')}</p>
       <div className="mt-auto pt-6">
-        <Button type="submit" size="xl" className="w-full" disabled={!value.trim()}>
-          <Send className="size-7" aria-hidden="true" />
+        <Button type="submit" size="xl" chip className="w-full" disabled={!value.trim()}>
           {t('play.lockIn')}
         </Button>
       </div>
@@ -206,15 +183,13 @@ export function FeedbackScreen({ game, result }) {
   const { room, pending } = game
   const picked = pending?.value
   const pickedLabel =
-    room.mode === 'standard' && picked !== undefined && room.question?.options
-      ? `${ANSWER_PLATES[picked].letter} · ${tr(room.question.options[picked])}`
-      : picked
+    room.mode === 'standard' && picked !== undefined && room.question?.options ? `${ANSWER_PLATES[picked].letter} · ${tr(room.question.options[picked])}` : picked
 
   if (!result) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-board px-6 text-center text-led">
-        <LoaderCircle className="size-16 animate-spin" aria-hidden="true" />
-        <p className="font-display text-3xl font-black uppercase">{t('play.sending')}</p>
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+        <LoaderCircle className="size-12 animate-spin" aria-hidden="true" />
+        <p className="display text-2xl">{t('play.sending')}</p>
       </div>
     )
   }
@@ -223,43 +198,29 @@ export function FeedbackScreen({ game, result }) {
 
   const ok = result.correct
   return (
-    <div className={`flex flex-1 flex-col items-center justify-center px-6 py-10 text-center ${ok ? 'bg-kit-green' : 'bg-kit-red'} text-white`}>
+    <div className={`m-3 flex flex-1 flex-col items-center justify-center rounded-[2.5rem] px-6 py-10 text-center ${ok ? 'bg-land' : 'bg-coral'}`}>
       <motion.span
         initial={{ scale: 0, rotate: -45 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ ...pop, stiffness: 520 }}
-        className="grid size-36 place-items-center rounded-full bg-white shadow-[0_14px_30px_-10px_rgb(0_0_0/0.4)]"
+        className="grid size-32 place-items-center rounded-full bg-water"
       >
-        {ok ? (
-          <Check className="size-20 text-kit-green" strokeWidth={4} aria-hidden="true" />
-        ) : (
-          <X className="size-20 text-kit-red" strokeWidth={4} aria-hidden="true" />
-        )}
+        {ok ? <Check className="size-16" strokeWidth={3.5} aria-hidden="true" /> : <X className="size-16" strokeWidth={3.5} aria-hidden="true" />}
       </motion.span>
-      <motion.h1
-        initial={{ opacity: 0, y: 20, scale: 0.7 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ ...pop, delay: 0.1 }}
-        className="mt-6 font-display text-[clamp(3.5rem,18vw,6rem)] leading-[0.85] font-black uppercase"
-      >
+      <motion.h1 initial={{ opacity: 0, y: 16, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ ...pop, delay: 0.1 }} className="display mt-6 text-[clamp(3rem,15vw,5rem)]">
         {ok ? t('play.correct') : t('play.incorrect')}
       </motion.h1>
       {ok && (
-        <motion.p
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...pop, delay: 0.25 }}
-          className="mt-5 rounded-2xl bg-board px-6 py-3 font-display text-4xl font-black text-led"
-        >
-          +<RollingNumber value={result.points} duration={0.8} /> <span className="text-2xl">{t('common.pts')}</span>
+        <motion.p initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ ...pop, delay: 0.25 }} className="display tabular mt-4 rounded-full bg-ink px-6 py-3 text-3xl text-water">
+          +<RollingNumber value={result.points} duration={0.8} /> <span className="text-lg">{t('common.pts')}</span>
         </motion.p>
       )}
       {pickedLabel !== undefined && pickedLabel !== null && (
-        <p className="mt-6 max-w-sm text-lg font-semibold text-white/90">
-          {t('play.youAnswered')} <span className="font-bold text-white">“{pickedLabel}”</span>
+        <p className="mt-6 max-w-sm text-base font-medium">
+          {t('play.youAnswered')} <span className="font-semibold">“{pickedLabel}”</span>
         </p>
       )}
-      <p className="mt-3 inline-flex items-center gap-2 text-base font-semibold text-white/85">
+      <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold">
         {t('play.waitOthers')} <Dots />
       </p>
     </div>
@@ -269,12 +230,12 @@ export function FeedbackScreen({ game, result }) {
 export function TimeUpScreen() {
   const { t } = useLang()
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-board px-6 text-center">
+    <div className="m-3 flex flex-1 flex-col items-center justify-center rounded-[2.5rem] bg-lilac px-6 text-center">
       <motion.span initial={{ rotate: -90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} transition={pop}>
-        <Hourglass className="size-24 text-led-hot" aria-hidden="true" />
+        <Hourglass className="size-20" aria-hidden="true" />
       </motion.span>
-      <h1 className="mt-6 font-display text-6xl font-black text-white uppercase">{t('play.timeUp')}</h1>
-      <p className="mt-3 text-lg text-board-text">{t('play.timeUpBody')}</p>
+      <h1 className="display mt-6 text-5xl">{t('play.timeUp')}</h1>
+      <p className="mt-3 text-base">{t('play.timeUpBody')}</p>
     </div>
   )
 }
@@ -299,40 +260,44 @@ export function RevealScreen({ game }) {
   const gained = me?.lastGain ?? 0
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-8">
-      <BoardLabel className="text-ink-2">{t('reveal.correctWas')}</BoardLabel>
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-6">
+      <Label>{t('reveal.correctWas')}</Label>
       <motion.p
-        initial={{ opacity: 0, scale: 0.6 }}
+        initial={{ opacity: 0, scale: 0.7 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={pop}
-        className="mt-2 rounded-2xl px-5 py-4 font-display text-4xl leading-none font-black uppercase"
-        style={plate ? { background: plate.bg, color: plate.fg } : { background: 'var(--color-led)', color: 'var(--color-ink)' }}
+        className="display mt-2 self-start rounded-full px-6 py-4 text-3xl"
+        style={{ background: plate ? plate.bg : 'var(--color-sun)' }}
       >
         {answerText}
       </motion.p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-board p-4 led-lattice">
-          <BoardLabel className="text-xs">{t('reveal.thisRound')}</BoardLabel>
-          <p className={`mt-2 font-display text-4xl font-black ${gained > 0 ? 'text-led' : 'text-board-text'}`}>
-            {gained > 0 ? `+${gained}` : '0'}
-          </p>
+      <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 border-t-2 border-ink pt-6">
+        <div>
+          <dt>
+            <Label>{t('reveal.thisRound')}</Label>
+          </dt>
+          <dd className="display tabular mt-1 text-4xl">{gained > 0 ? `+${gained}` : '0'}</dd>
         </div>
-        <div className="rounded-2xl bg-board p-4 led-lattice">
-          <BoardLabel className="text-xs">{t('reveal.rank')}</BoardLabel>
-          <p className="mt-2 font-display text-4xl font-black text-white">
+        <div>
+          <dt>
+            <Label>{t('reveal.rank')}</Label>
+          </dt>
+          <dd className="display tabular mt-1 text-4xl">
             {rank > 0 ? rank : '–'}
-            <span className="text-xl text-board-text">/{of}</span>
-          </p>
+            <span className="text-xl text-ink-2">/{of}</span>
+          </dd>
         </div>
-      </div>
-      <div className="mt-3 rounded-2xl bg-ink p-5">
-        <BoardLabel className="text-xs">{t('reveal.total')}</BoardLabel>
-        <p className="mt-1 font-display text-6xl font-black text-led">
-          <RollingNumber value={me?.score ?? 0} />
-        </p>
-      </div>
-      <p className="mt-auto inline-flex items-center justify-center gap-2 pt-8 text-center text-base font-semibold text-ink-2">
+        <div className="col-span-2">
+          <dt>
+            <Label>{t('reveal.total')}</Label>
+          </dt>
+          <dd className="display tabular mt-1 text-6xl">
+            <RollingNumber value={me?.score ?? 0} />
+          </dd>
+        </div>
+      </dl>
+      <p className="mt-auto inline-flex items-center justify-center gap-2 pt-8 text-sm font-semibold text-ink-2">
         {t('reveal.waitNext')} <Dots />
       </p>
     </div>
@@ -344,21 +309,21 @@ export function FinalScreen({ game }) {
   const { me } = game
   const { ranked, rank, of } = useRank(game)
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-8">
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={pop} className="text-center">
-        <BoardLabel className="text-ink-2">{t('final.yourRank')}</BoardLabel>
-        <p className="font-display text-[7rem] leading-none font-black text-ink">
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-6">
+      <motion.div initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={pop} className="text-center">
+        <Label>{t('final.yourRank')}</Label>
+        <p className="display tabular text-[7rem]">
           {rank > 0 ? rank : '–'}
           <span className="text-4xl text-ink-2">/{of}</span>
         </p>
-        <p className="mt-1 font-display text-3xl font-black text-ink-2">
+        <p className="display tabular mt-1 text-2xl text-ink-2">
           <RollingNumber value={me?.score ?? 0} duration={1.6} /> {t('common.pts')}
         </p>
       </motion.div>
       <div className="mt-8">
         <Podium ranked={ranked} compact />
       </div>
-      <p className="mt-6 text-center text-base text-ink-2">{t('final.thanks')}</p>
+      <p className="mt-6 text-center text-sm text-ink-2">{t('final.thanks')}</p>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import Setup from './Setup.jsx'
 import Lobby from './Lobby.jsx'
 import Game from './Game.jsx'
 import Final from './Final.jsx'
-import { LangToggle } from '../components/ui.jsx'
+import { LangToggle, Brand } from '../components/ui.jsx'
 import { useLang } from '../lib/i18n.jsx'
 
 export default function HostApp({ navigate }) {
@@ -26,15 +26,13 @@ export default function HostApp({ navigate }) {
   else screen = <Game key="game" game={game} />
 
   return (
-    <div className="flex min-h-dvh flex-col bg-concrete">
-      <header className="flex items-center justify-between gap-4 bg-board px-4 py-3 sm:px-8">
+    <div className="relative flex min-h-dvh flex-col overflow-x-clip">
+      <header className="relative z-20 flex items-center justify-between gap-4 px-5 py-4 sm:px-10">
         <div className="flex items-center gap-4">
-          <span className="font-display text-2xl font-black tracking-[0.08em] text-white uppercase">
-            Matchday<span className="text-led">.</span>quiz
-          </span>
+          <Brand />
           {state.roomCode && state.phase !== 'setup' && (
-            <span className="hidden rounded-md bg-board-2 px-3 py-1 font-display text-lg font-extrabold tracking-[0.2em] text-led tabular sm:inline">
-              #{state.roomCode}
+            <span className="hidden rounded-full bg-paper px-4 py-1.5 text-sm font-semibold tabular ring-2 ring-inset ring-ink/10 sm:inline">
+              {t('lobby.codeLabel')} {state.roomCode}
             </span>
           )}
         </div>
@@ -43,7 +41,7 @@ export default function HostApp({ navigate }) {
           <button
             type="button"
             onClick={exit}
-            className="inline-flex h-10 items-center gap-2 rounded-full px-4 font-display text-base font-extrabold tracking-wide text-board-text uppercase transition-colors hover:bg-board-2 hover:text-white"
+            className="inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold uppercase transition-colors hover:bg-ink/5"
           >
             <LogOut className="size-4" aria-hidden="true" />
             <span className="hidden sm:inline">{state.roomCode ? t('host.closeRoom') : t('common.home')}</span>
@@ -57,7 +55,7 @@ export default function HostApp({ navigate }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
           transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-1 flex-col"
+          className="relative flex flex-1 flex-col"
         >
           {screen}
         </motion.main>

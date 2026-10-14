@@ -1,6 +1,6 @@
-# Matchday Quiz
+# Quizmap
 
-Ứng dụng đố vui trên lớp theo thời gian thực (giống Kahoot/Quizizz), phong cách **bảng tỉ số sân vận động**. Giao diện song ngữ Việt / Anh.
+Ứng dụng đố vui trên lớp theo thời gian thực (giống Kahoot/Quizizz), phong cách tối giản **bản đồ công viên**. Giao diện song ngữ Việt / Anh.
 
 ## Chạy thử
 
@@ -48,7 +48,7 @@ src/
   data/quizzes.js            Câu hỏi mẫu song ngữ (thay bằng dữ liệu của bạn)
   lib/scoring.js             Công thức điểm + so khớp đáp án linh hoạt
   lib/i18n.jsx               Từ điển Việt / Anh
-  components/                SevenSeg (số LED), ShotClock, Ticker, Podium...
+  components/                Lobe (mảng màu), TimeTrack (thanh thời gian), Podium...
 ```
 
 ## Luồng sự kiện

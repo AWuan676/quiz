@@ -1,49 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Big Shoulders Display", "Barlow", system-ui, sans-serif;
-  --font-sans: "Barlow", system-ui, sans-serif;
+  --font-display: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
 
-  /* Stadium ground */
-  --color-concrete: #e9edf3;
-  --color-concrete-2: #d9e0ea;
-  --color-paper: #ffffff;
-  --color-ink: #12141c;
-  --color-ink-2: #464d5f;
+  /* Map ground */
+  --color-water: #f5f1e4;
+  --color-water-2: #ebe5d2;
+  --color-paper: #fffdf6;
+  --color-ink: #2c2e2a;
+  --color-ink-2: #5a5c55;
 
-  /* Scoreboard housing + LED */
-  --color-board: #15171f;
-  --color-board-2: #22253a;
-  --color-board-3: #30344b;
-  --color-board-text: #c9cede;
-  --color-led: #ffb400;
-  --color-led-hot: #ff4a2e;
-
-  /* Pitch */
-  --color-pitch: #0e9f4f;
-  --color-pitch-2: #0b8a43;
-  --color-chalk: #f4fff7;
-
-  /* Kits / answer colours */
-  --color-kit-red: #e5243b;
-  --color-kit-blue: #1d5bff;
-  --color-kit-yellow: #ffc20e;
-  --color-kit-green: #0fa24a;
-  --color-kit-orange: #ff6a13;
-  --color-kit-purple: #7b3fe4;
-  --color-kit-cyan: #00b3d6;
-  --color-kit-pink: #ff3d8b;
-
-  --animate-ticker: ticker 28s linear infinite;
-  --animate-blink: blink 1.1s steps(2, start) infinite;
-
-  @keyframes ticker {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  @keyframes blink {
-    to { visibility: hidden; }
-  }
+  /* Lands + capsules (all carry ink text) */
+  --color-land: #8ed462;
+  --color-land-2: #74bd47;
+  --color-sun: #f5e211;
+  --color-coral: #ff705d;
+  --color-pond: #2ba0ff;
+  --color-lilac: #ebc1ff;
+  /* Last seconds: coral deepened to pass text contrast on cream */
+  --color-alert: #c2301d;
 }
 
 @layer base {
@@ -52,28 +28,27 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-concrete text-ink font-sans antialiased;
+    @apply bg-water text-ink font-sans antialiased;
     min-height: 100dvh;
   }
   ::selection {
-    background: var(--color-led);
+    background: var(--color-sun);
     color: var(--color-ink);
   }
   input,
   textarea {
-    caret-color: var(--color-led);
+    caret-color: var(--color-ink);
   }
   :focus-visible {
-    outline: 3px solid var(--color-led);
+    outline: 3px solid var(--color-pond);
     outline-offset: 3px;
-    border-radius: 6px;
   }
   button:not(:disabled) {
     cursor: pointer;
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-board-3) transparent;
+    scrollbar-color: var(--color-water-2) transparent;
   }
   .tabular {
     font-variant-numeric: tabular-nums;
@@ -81,31 +56,10 @@
 }
 
 @layer components {
-  /* Painted pitch lines, drawn behind the landing scoreboard. */
-  .pitch-stripes {
-    background-color: var(--color-pitch);
-    background-image: repeating-linear-gradient(
-      90deg,
-      var(--color-pitch) 0 80px,
-      var(--color-pitch-2) 80px 160px
-    );
-  }
-  /* The LED lattice that sits behind lit segments on the board. */
-  .led-lattice {
-    background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1.4px);
-    background-size: 6px 6px;
-  }
-  /* Ticket stub edge with punched notches. */
-  .ticket {
-    --notch: 14px;
-    mask:
-      radial-gradient(circle var(--notch) at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
-      radial-gradient(circle var(--notch) at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-ticker {
-    animation: none;
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
   }
 }

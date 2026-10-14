@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, ChevronRight, DoorOpen } from 'lucide-react'
-import { Button, BoardLabel } from '../components/ui.jsx'
-import SevenSeg from '../components/SevenSeg.jsx'
-import ShotClock from '../components/ShotClock.jsx'
+import { Check } from 'lucide-react'
+import { Button, Label } from '../components/ui.jsx'
+import { Blob, CornerLobe } from '../components/Lobe.jsx'
+import TimeTrack from '../components/TimeTrack.jsx'
 import { TIME_OPTIONS, MODES } from '../data/quizzes.js'
 import { ANSWER_PLATES } from '../lib/kits.js'
 import { pointsAt } from '../lib/scoring.js'
@@ -12,23 +12,23 @@ import { useLang } from '../lib/i18n.jsx'
 
 function CluesArt() {
   return (
-    <div className="flex h-full items-center gap-3">
-      <div className="flex flex-1 flex-col items-end gap-2">
-        {[100, 84, 68, 52].map((w, i) => (
-          <motion.div
+    <div className="flex h-full items-center gap-4">
+      <div className="flex flex-1 flex-col gap-2">
+        {[100, 82, 64, 46].map((w, i) => (
+          <motion.span
             key={i}
             initial={{ width: 0 }}
             animate={{ width: `${w}%` }}
             transition={{ ...pop, delay: 0.1 + i * 0.08 }}
-            className="flex h-6 items-center gap-2 rounded-md bg-board-3 px-2"
+            className="flex h-6 items-center rounded-full bg-paper pl-2.5 text-xs font-semibold"
           >
-            <span className="font-display text-sm font-black text-led">{i + 1}</span>
-            <span className="h-1.5 flex-1 rounded-full bg-white/15" />
-          </motion.div>
+            {i + 1}
+          </motion.span>
         ))}
       </div>
-      <ChevronRight className="size-8 shrink-0 text-led" aria-hidden="true" />
-      <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-led font-display text-5xl font-black text-ink">?</span>
+      <Blob variant={0} color="var(--color-sun)" className="size-20 shrink-0">
+        <span className="display text-4xl">?</span>
+      </Blob>
     </div>
   )
 }
@@ -36,18 +36,18 @@ function CluesArt() {
 function StandardArt() {
   return (
     <div className="grid h-full grid-cols-2 gap-2">
-      {ANSWER_PLATES.map(({ letter, bg, fg, Icon }, i) => (
-        <motion.div
+      {ANSWER_PLATES.map(({ letter, bg, Icon }, i) => (
+        <motion.span
           key={letter}
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ ...pop, delay: 0.1 + i * 0.06 }}
-          className="flex items-center gap-2 rounded-lg px-3"
-          style={{ background: bg, color: fg }}
+          className="flex items-center gap-2 rounded-full px-4"
+          style={{ background: bg }}
         >
-          <Icon className="size-5 fill-current" aria-hidden="true" />
-          <span className="font-display text-2xl font-black">{letter}</span>
-        </motion.div>
+          <Icon className="size-4 fill-current" aria-hidden="true" />
+          <span className="display text-xl">{letter}</span>
+        </motion.span>
       ))}
     </div>
   )
@@ -66,112 +66,103 @@ export default function Setup({ game }) {
   ]
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-8 sm:py-14">
-      <h1 className="font-display text-[clamp(3rem,7vw,6rem)] leading-[0.88] font-black text-ink uppercase">{t('setup.title')}</h1>
-      <p className="mt-4 max-w-2xl text-xl text-ink-2">{t('setup.subtitle')}</p>
+    <>
+      <CornerLobe corner="br" color="var(--color-lilac)" className="fixed -right-[10vw] -bottom-[12vw] w-[min(34vw,460px)] max-md:hidden" />
+      <div className="relative mx-auto w-full max-w-6xl px-5 pt-6 pb-16 sm:px-10">
+        <h1 className="display text-[clamp(2.75rem,6vw,5rem)]">{t('setup.title')}</h1>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-2">{t('setup.subtitle')}</p>
 
-      <h2 className="mt-12 font-display text-3xl font-black text-ink uppercase">{t('setup.modeHeading')}</h2>
-      <div role="radiogroup" aria-label={t('setup.modeHeading')} className="mt-4 grid gap-5 md:grid-cols-2">
-        {modes.map(({ id, Art }) => {
-          const selected = state.mode === id
-          return (
-            <motion.button
-              key={id}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => actions.setMode(id)}
-              whileTap={{ scale: 0.98 }}
-              animate={{ y: selected ? -4 : 0 }}
-              transition={pop}
-              className={`relative flex flex-col rounded-3xl p-3 text-left transition-shadow ${
-                selected ? 'bg-ink shadow-[0_18px_40px_-16px_rgb(18_20_28/0.55)]' : 'bg-paper ring-2 ring-ink/10 hover:ring-ink/25'
-              }`}
-            >
-              <div className="h-40 rounded-2xl bg-board p-5 led-lattice">
-                <Art />
-              </div>
-              <div className="px-3 pt-5 pb-3">
-                <span className={`font-display text-4xl leading-none font-black uppercase ${selected ? 'text-white' : 'text-ink'}`}>
-                  {t(`mode.${id}`)}
-                </span>
-                <p className={`mt-2 text-lg leading-snug ${selected ? 'text-board-text' : 'text-ink-2'}`}>{t(`mode.${id}.desc`)}</p>
-                <p className={`mt-3 font-display text-base font-extrabold tracking-[0.14em] uppercase ${selected ? 'text-led' : 'text-ink-2'}`}>
+        <h2 className="display mt-14 text-2xl">{t('setup.modeHeading')}</h2>
+        <div role="radiogroup" aria-label={t('setup.modeHeading')} className="mt-4 grid gap-4 md:grid-cols-2">
+          {modes.map(({ id, Art }) => {
+            const selected = state.mode === id
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => actions.setMode(id)}
+                whileTap={{ scale: 0.98 }}
+                transition={pop}
+                className={`relative flex flex-col rounded-[2.5rem] p-6 text-left transition-colors ${
+                  selected ? 'bg-land' : 'bg-paper ring-2 ring-inset ring-ink/10 hover:ring-ink/30'
+                }`}
+              >
+                <div className="h-28 rounded-[1.75rem] bg-water-2/70 p-4">
+                  <Art />
+                </div>
+                <span className="display mt-6 text-3xl">{t(`mode.${id}`)}</span>
+                <p className="mt-2 text-base leading-relaxed text-ink">{t(`mode.${id}.desc`)}</p>
+                <p className="mt-4 text-sm font-semibold text-ink-2">
                   {t('setup.questionCount', { n: MODES[id].questions.length })} · {t('setup.maxPoints')}
                 </p>
-              </div>
-              {selected && (
-                <motion.span
-                  layoutId="mode-check"
-                  transition={pop}
-                  className="absolute top-6 right-6 grid size-10 place-items-center rounded-full bg-led text-ink"
-                >
-                  <Check className="size-6" strokeWidth={3} aria-hidden="true" />
-                </motion.span>
-              )}
-            </motion.button>
-          )
-        })}
-      </div>
+                {selected && (
+                  <motion.span layoutId="mode-check" transition={pop} className="absolute top-6 right-6 grid size-10 place-items-center rounded-full bg-ink text-water">
+                    <Check className="size-5" strokeWidth={3} aria-hidden="true" />
+                  </motion.span>
+                )}
+              </motion.button>
+            )
+          })}
+        </div>
 
-      <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_1fr]">
-        <div>
-          <h2 className="font-display text-3xl font-black text-ink uppercase">{t('setup.timeHeading')}</h2>
-          <div role="radiogroup" aria-label={t('setup.timeHeading')} className="mt-4 flex flex-wrap gap-3">
-            {TIME_OPTIONS.map((sec) => {
-              const selected = state.duration === sec
-              return (
-                <motion.button
-                  key={sec}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  aria-label={t('common.seconds', { n: sec })}
-                  onClick={() => actions.setDuration(sec)}
-                  whileTap={{ scale: 0.94 }}
-                  className={`flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-2xl bg-board led-lattice ring-4 transition-colors ${
-                    selected ? 'ring-led' : 'ring-transparent hover:ring-board-3'
-                  }`}
-                >
-                  <SevenSeg value={sec} className={`h-10 ${selected ? 'text-led' : 'text-board-text/40'}`} />
-                  <span className={`font-display text-sm font-extrabold tracking-[0.18em] uppercase ${selected ? 'text-led' : 'text-board-text/60'}`}>
-                    {t('common.sec')}
-                  </span>
-                </motion.button>
-              )
-            })}
+        <div className="mt-14 grid gap-10 lg:grid-cols-2">
+          <div>
+            <h2 className="display text-2xl">{t('setup.timeHeading')}</h2>
+            <div role="radiogroup" aria-label={t('setup.timeHeading')} className="mt-4 flex flex-wrap gap-2">
+              {TIME_OPTIONS.map((sec) => {
+                const selected = state.duration === sec
+                return (
+                  <motion.button
+                    key={sec}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => actions.setDuration(sec)}
+                    whileTap={{ scale: 0.94 }}
+                    className={`h-14 min-w-24 rounded-full px-6 text-lg font-semibold tabular transition-colors ${
+                      selected ? 'bg-ink text-water' : 'bg-paper ring-2 ring-inset ring-ink/10 hover:ring-ink/30'
+                    }`}
+                  >
+                    {t('common.seconds', { n: sec })}
+                  </motion.button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-[2.5rem] bg-paper p-7 ring-2 ring-inset ring-ink/10">
+            <Label>{t('setup.formulaLabel')}</Label>
+            <p className="mt-2 text-lg font-semibold">{t('setup.formula')}</p>
+            <label htmlFor="demo-second" className="mt-5 block text-sm text-ink-2">
+              {t('setup.demo', { s: second })}
+            </label>
+            <input
+              id="demo-second"
+              type="range"
+              min={0}
+              max={state.duration}
+              value={second}
+              onChange={(e) => setDemoSecond(Number(e.target.value))}
+              className="mt-2 w-full accent-[var(--color-ink)]"
+            />
+            <div className="mt-4 flex items-center gap-5">
+              <TimeTrack remainingMs={(state.duration - second) * 1000} totalMs={state.duration * 1000} className="h-4 flex-1" label={t('game.timeLeft')} />
+              <span className="display tabular w-28 text-right text-4xl" aria-label={t('setup.demoPoints', { n: demoPoints })}>
+                {demoPoints}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-3xl bg-board p-6 led-lattice">
-          <BoardLabel>{t('setup.formulaLabel')}</BoardLabel>
-          <p className="mt-2 font-display text-2xl font-extrabold text-white">{t('setup.formula')}</p>
-          <label htmlFor="demo-second" className="mt-5 block text-base text-board-text">
-            {t('setup.demo', { s: second })}
-          </label>
-          <input
-            id="demo-second"
-            type="range"
-            min={0}
-            max={state.duration}
-            value={second}
-            onChange={(e) => setDemoSecond(Number(e.target.value))}
-            className="mt-3 w-full accent-[var(--color-led)]"
-          />
-          <div className="mt-4 flex items-center gap-4">
-            <ShotClock remainingMs={(state.duration - second) * 1000} totalMs={state.duration * 1000} cells={24} className="h-8 flex-1" label={t('game.timeLeft')} />
-            <SevenSeg value={demoPoints} length={4} className="h-12 text-led" label={t('setup.demoPoints', { n: demoPoints })} />
-          </div>
+        <div className="mt-14 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-base text-ink-2">{t('setup.ready', { mode: t(`mode.${state.mode}`), s: state.duration })}</p>
+          <Button size="xl" chip onClick={actions.openRoom}>
+            {t('setup.openRoom')}
+          </Button>
         </div>
       </div>
-
-      <div className="mt-12 flex flex-col items-start gap-4 border-t-2 border-concrete-2 pt-8 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-lg text-ink-2">{t('setup.ready', { mode: t(`mode.${state.mode}`), s: state.duration })}</p>
-        <Button size="xl" onClick={actions.openRoom}>
-          <DoorOpen className="size-8" aria-hidden="true" />
-          {t('setup.openRoom')}
-        </Button>
-      </div>
-    </div>
+    </>
   )
 }
