@@ -1,0 +1,34 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && data.child('meta/hostUid').val() === auth.uid",
+        "meta": {
+          ".write": "auth != null && !data.exists() && newData.child('hostUid').val() === auth.uid"
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms/' + $code + '/meta').exists()",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" }
+          }
+        },
+        "invites": {
+          "$to": {
+            ".write": "auth != null && auth.uid === $to",
+            "$from": {
+              ".write": "auth != null && auth.uid === $from && root.child('rooms/' + $code + '/players/' + $from).exists()"
+            }
+          }
+        },
+        "answers": {
+          "$q": {
+            "$team": {
+              ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid && root.child('rooms/' + $code + '/players/' + auth.uid + '/teamId').val() === $team && root.child('rooms/' + $code + '/state/phase').val() === 'question' && root.child('rooms/' + $code + '/state/qIndex').val() + '' === $q"
+            }
+          }
+        }
+      }
+    }
+  }
+}

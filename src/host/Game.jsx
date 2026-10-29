@@ -5,8 +5,10 @@ import { Button, Label } from '../components/ui.jsx'
 import TimeTrack from '../components/TimeTrack.jsx'
 import RollingNumber from '../components/RollingNumber.jsx'
 import { ANSWER_PLATES } from '../lib/kits.js'
-import { pointsAt, rankTeams } from '../lib/scoring.js'
-import { pop, useNow } from '../lib/motion.js'
+import { pointsAt } from '../lib/scoring.js'
+import { rankedTeams, useServerNow } from '../lib/room.js'
+import { hostDb } from '../lib/firebase.js'
+import { pop } from '../lib/motion.js'
 import { useLang } from '../lib/i18n.jsx'
 
 function Kbd({ children }) {
@@ -110,7 +112,7 @@ function StandardStage({ question, revealed, answers, teams }) {
 
 function Standings({ teams, phase, mode }) {
   const { t } = useLang()
-  const ranked = rankTeams(teams)
+  const ranked = teams
   const answered = teams.filter((tm) => tm.answered).length
   const showGains = phase === 'reveal'
   return (
@@ -162,17 +164,20 @@ function Standings({ teams, phase, mode }) {
 
 export default function Game({ game }) {
   const { t } = useLang()
-  const { state, actions, total, question } = game
+  const { room, meta, state, actions, question } = game
+  const { mode, duration, total } = meta
+  const answers = room.answers?.[state.qIndex] || {}
+  const teamsArr = rankedTeams(room.teams)
   const isQuestion = state.phase === 'question'
-  const now = useNow(isQuestion, 100)
-  const totalMs = state.duration * 1000
+  const now = useServerNow(hostDb, isQuestion, 100)
+  const totalMs = duration * 1000
   const endsAt = state.startedAt + totalMs
   const remainingMs = isQuestion ? Math.max(0, endsAt - now) : 0
   const livePoints = pointsAt(remainingMs, totalMs)
   const timeUp = isQuestion && remainingMs <= 0
-  const allAnswered = isQuestion && state.teams.length > 0 && state.teams.every((tm) => state.answers[tm.id])
+  const allAnswered = isQuestion && teamsArr.length > 0 && teamsArr.every((tm) => answers[tm.id])
   const isLast = state.qIndex + 1 >= total
-  const canHint = isQuestion && state.mode === 'clues' && state.hintsRevealed < 4 && !timeUp
+  const canHint = isQuestion && mode === 'clues' && state.hintsRevealed < 4 && !timeUp
 
   // Keyboard: H = next hint, A / Space = show answer, N / → = next
   useEffect(() => {
@@ -189,10 +194,10 @@ export default function Game({ game }) {
     return () => window.removeEventListener('keydown', onKey)
   })
 
-  const snapshotTeams = state.teams.map((tm) => ({ ...tm, answered: Boolean(state.answers[tm.id]) }))
+  const snapshotTeams = teamsArr.map((tm) => ({ ...tm, answered: Boolean(answers[tm.id]) }))
   const publicQuestion =
-    state.mode === 'clues' ? { category: question.category, hints: question.hints } : { prompt: question.prompt, options: question.options }
-  const revealed = state.phase === 'reveal' ? (state.mode === 'clues' ? { text: question.answer } : { index: question.correct }) : null
+    mode === 'clues' ? { category: question.category, hints: question.hints } : { prompt: question.prompt, options: question.options }
+  const revealed = state.phase === 'reveal' ? (mode === 'clues' ? { text: question.answer } : { index: question.correct }) : null
 
   let status = t('game.statusOpen')
   if (state.phase === 'reveal') status = t('game.statusRevealed')
@@ -238,14 +243,14 @@ export default function Game({ game }) {
             transition={pop}
             className="flex flex-col"
           >
-            {state.mode === 'clues' ? (
+            {mode === 'clues' ? (
               <CluesStage question={publicQuestion} hintsRevealed={state.hintsRevealed} revealed={revealed} />
             ) : (
-              <StandardStage question={publicQuestion} revealed={revealed} answers={state.answers} teams={state.teams.length} />
+              <StandardStage question={publicQuestion} revealed={revealed} answers={answers} teams={teamsArr.length} />
             )}
           </motion.div>
         </AnimatePresence>
-        <Standings teams={snapshotTeams} phase={state.phase} mode={state.mode} />
+        <Standings teams={snapshotTeams} phase={state.phase} mode={mode} />
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-ink/10 bg-water">
@@ -261,7 +266,7 @@ export default function Game({ game }) {
             {status}
           </motion.span>
           <div className="flex flex-wrap items-center gap-3">
-            {state.mode === 'clues' && isQuestion && (
+            {mode === 'clues' && isQuestion && (
               <Button variant="outline" size="lg" onClick={actions.revealHint} disabled={!canHint}>
                 <Lightbulb className="size-5" aria-hidden="true" />
                 {t('game.nextHint', { n: Math.min(state.hintsRevealed + 1, 4) })}

@@ -1,16 +1,19 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
-import { usePlayerGame } from './usePlayerGame.js'
-import { JoinScreen, TeamScreen, ClosedScreen } from './JoinScreens.jsx'
-import { WaitingScreen, ControllerScreen, FeedbackScreen, RevealScreen, FinalScreen, TimeUpScreen } from './PlayScreens.jsx'
-import { LangToggle, TeamBlob, Brand } from '../components/ui.jsx'
+import { usePlayerRoom } from './usePlayerRoom.js'
+import { JoinScreen, ProfileScreen, ClosedScreen } from './JoinScreens.jsx'
+import LobbyScreen from './LobbyScreen.jsx'
+import { ControllerScreen, FeedbackScreen, RevealScreen, FinalScreen, TimeUpScreen } from './PlayScreens.jsx'
+import { LangToggle, Brand } from '../components/ui.jsx'
+import Avatar from '../components/Avatar.jsx'
+import { playerDb } from '../lib/firebase.js'
+import { rankedTeams, useServerNow } from '../lib/room.js'
 import { useLang } from '../lib/i18n.jsx'
-import { useNow } from '../lib/motion.js'
 
 export default function PlayerApp({ initialCode, navigate }) {
   const { t } = useLang()
   const game = useGameView(initialCode)
-  const { step, room, me } = game
+  const { step, rawRoom: room, player: me } = game
 
   return (
     <div className="flex min-h-dvh flex-col overflow-x-clip">
@@ -28,10 +31,14 @@ export default function PlayerApp({ initialCode, navigate }) {
           )}
           {step === 'in' && me ? (
             <>
-              <TeamBlob kit={me.kit} number={me.number} className="size-11" textClass="text-lg" />
+              <Avatar name={me.name} avatar={me.avatar} className="size-11" textClass="text-sm" />
               <div className="min-w-0">
                 <p className="truncate text-base leading-tight font-semibold">{me.name}</p>
-                {room && <p className="text-xs font-semibold text-ink-2 tabular">{t('lobby.codeLabel')} {room.roomCode}</p>}
+                {room?.meta && (
+                  <p className="truncate text-xs font-semibold text-ink-2">
+                    {room.meta.title} · <span className="tabular">{game.code}</span>
+                  </p>
+                )}
               </div>
             </>
           ) : (
@@ -57,26 +64,51 @@ export default function PlayerApp({ initialCode, navigate }) {
   )
 }
 
-/** Picks the one screen this team should see right now. */
+/** Picks the one screen this player should see right now. */
 function useGameView(initialCode) {
-  const g = usePlayerGame(initialCode)
-  const { step, room, results, pending } = g
-  const live = step === 'in' && room?.phase === 'question'
-  const now = useNow(live, 100)
+  const raw = usePlayerRoom(initialCode)
+  const g = { ...raw, player: raw.me, rawRoom: raw.room }
+  const { step, room, me } = raw
+  const state = room?.state
+  const live = step === 'in' && state?.phase === 'question'
+  const now = useServerNow(playerDb, live, 100)
 
-  if (step === 'closed') return { ...g, screenKey: 'closed', screen: <ClosedScreen onLeave={g.leave} /> }
-  if (step === 'code' || step === 'checking') return { ...g, screenKey: 'code', screen: <JoinScreen game={g} /> }
-  if (step === 'team' || (step === 'joining' && !g.me)) return { ...g, screenKey: 'team', screen: <TeamScreen game={g} /> }
-  if (!room || room.phase === 'lobby' || room.phase === 'setup') {
-    return { ...g, screenKey: 'wait', screen: <WaitingScreen game={g} /> }
+  if (step === 'closed') return { ...g, screenKey: 'closed', screen: <ClosedScreen onLeave={g.leaveRoom} /> }
+  if (step === 'code') return { ...g, screenKey: 'code', screen: <JoinScreen game={g} /> }
+  if (step === 'profile') return { ...g, screenKey: 'profile', screen: <ProfileScreen game={g} /> }
+  if (!room?.meta || !state || !me || state.phase === 'lobby') {
+    return { ...g, screenKey: 'lobby', screen: <LobbyScreen game={g} /> }
   }
-  if (room.phase === 'final') return { ...g, screenKey: 'final', screen: <FinalScreen game={g} /> }
-  if (room.phase === 'reveal') return { ...g, screenKey: `reveal-${room.qIndex}`, screen: <RevealScreen game={g} /> }
 
-  const result = results[room.qIndex]
-  const remainingMs = Math.max(0, room.endsAt - now)
-  if (result) return { ...g, screenKey: `fb-${room.qIndex}`, screen: <FeedbackScreen game={g} result={result} /> }
-  if (pending?.qIndex === room.qIndex) return { ...g, screenKey: `fb-${room.qIndex}`, screen: <FeedbackScreen game={g} result={null} /> }
-  if (remainingMs <= 0) return { ...g, screenKey: `late-${room.qIndex}`, screen: <TimeUpScreen /> }
-  return { ...g, screenKey: `q-${room.qIndex}`, screen: <ControllerScreen game={g} remainingMs={remainingMs} /> }
+  // Shape the room for the game screens: the player's unit of play is their team.
+  const teams = rankedTeams(room.teams)
+  const team = teams.find((tm) => tm.id === me.teamId) || null
+  const q = state.qIndex
+  const answer = room.answers?.[q]?.[me.teamId]
+  const view = {
+    ...g,
+    room: {
+      mode: room.meta.mode,
+      duration: room.meta.duration,
+      total: room.meta.total,
+      qIndex: q,
+      endsAt: state.startedAt + room.meta.duration * 1000,
+      question: room.question,
+      answer: room.reveal,
+      teams,
+    },
+    me: team ? { ...team, memberCount: Object.keys(team.members || {}).length } : null,
+    pending: answer ? { qIndex: q, value: answer.value } : null,
+    answeredBy: answer && answer.uid !== me.uid ? answer.name : null,
+  }
+
+  if (state.phase === 'final') return { ...view, screenKey: 'final', screen: <FinalScreen game={view} /> }
+  if (state.phase === 'reveal') return { ...view, screenKey: `reveal-${q}`, screen: <RevealScreen game={view} /> }
+
+  const result = room.results?.[q]?.[me.teamId]
+  const remainingMs = Math.max(0, view.room.endsAt - now)
+  if (result) return { ...view, screenKey: `fb-${q}`, screen: <FeedbackScreen game={view} result={result} /> }
+  if (answer) return { ...view, screenKey: `fb-${q}`, screen: <FeedbackScreen game={view} result={null} /> }
+  if (remainingMs <= 0) return { ...view, screenKey: `late-${q}`, screen: <TimeUpScreen /> }
+  return { ...view, screenKey: `q-${q}`, screen: <ControllerScreen game={view} remainingMs={remainingMs} /> }
 }

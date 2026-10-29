@@ -1,17 +1,17 @@
 import { motion } from 'framer-motion'
-import { RotateCcw, Settings2 } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { Button } from '../components/ui.jsx'
 import Podium from '../components/Podium.jsx'
 import RollingNumber from '../components/RollingNumber.jsx'
 import { CornerLobe } from '../components/Lobe.jsx'
-import { rankTeams } from '../lib/scoring.js'
+import { rankedTeams } from '../lib/room.js'
 import { pop } from '../lib/motion.js'
 import { useLang } from '../lib/i18n.jsx'
 
 export default function Final({ game }) {
   const { t } = useLang()
-  const { state, actions } = game
-  const ranked = rankTeams(state.teams)
+  const { room, actions } = game
+  const ranked = rankedTeams(room.teams)
   const rest = ranked.slice(3)
   const winner = ranked[0]
 
@@ -61,10 +61,6 @@ export default function Final({ game }) {
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-ink/10 bg-water">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-3 px-5 py-4 sm:px-10">
-          <Button variant="outline" size="md" onClick={() => actions.backToSetup()}>
-            <Settings2 className="size-4" aria-hidden="true" />
-            {t('final.newSettings')}
-          </Button>
           <Button size="lg" onClick={actions.restart}>
             <RotateCcw className="size-5" aria-hidden="true" />
             {t('final.rematch')}

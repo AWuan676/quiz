@@ -217,7 +217,7 @@ export function FeedbackScreen({ game, result }) {
       )}
       {pickedLabel !== undefined && pickedLabel !== null && (
         <p className="mt-6 max-w-sm text-base font-medium">
-          {t('play.youAnswered')} <span className="font-semibold">“{pickedLabel}”</span>
+          {game.answeredBy ? t('play.teammateAnswered', { name: game.answeredBy }) : t('play.youAnswered')} <span className="font-semibold">“{pickedLabel}”</span>
         </p>
       )}
       <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold">

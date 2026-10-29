@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { EXTRA } from './strings.js'
 
 const dict = {
   vi: {
@@ -291,6 +292,9 @@ const dict = {
   },
 }
 
+Object.assign(dict.vi, EXTRA.vi)
+Object.assign(dict.en, EXTRA.en)
+
 const LangContext = createContext(null)
 
 function initialLang() {
@@ -333,6 +337,6 @@ export function useLang() {
     [lang],
   )
   /** Picks the current language from a bilingual { vi, en } object. */
-  const tr = useCallback((obj) => (obj ? (obj[lang] ?? obj.en ?? '') : ''), [lang])
+  const tr = useCallback((obj) => (typeof obj === 'string' ? obj : obj ? (obj[lang] ?? obj.en ?? '') : ''), [lang])
   return { lang, setLang, t, tr }
 }

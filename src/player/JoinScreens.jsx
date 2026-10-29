@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { DoorClosed, LoaderCircle, TriangleAlert } from 'lucide-react'
+import { Check, DoorClosed, LoaderCircle, TriangleAlert } from 'lucide-react'
 import { Button, Label } from '../components/ui.jsx'
 import CodeInput from '../components/CodeInput.jsx'
+import Avatar from '../components/Avatar.jsx'
 import { CornerLobe } from '../components/Lobe.jsx'
+import { KITS } from '../lib/kits.js'
 import { pop } from '../lib/motion.js'
 import { useLang } from '../lib/i18n.jsx'
 
-function ErrorLine({ code }) {
+export function ErrorLine({ code }) {
   const { t } = useLang()
   if (!code) return null
   return (
@@ -26,7 +28,7 @@ function ErrorLine({ code }) {
 
 export function JoinScreen({ game }) {
   const { t } = useLang()
-  const checking = game.step === 'checking'
+  const busy = game.busy || !game.uid
   return (
     <form
       onSubmit={(e) => {
@@ -47,57 +49,84 @@ export function JoinScreen({ game }) {
       <ErrorLine code={game.error} />
 
       <div className="mt-auto pt-8">
-        <Button type="submit" size="xl" chip={!checking} className="w-full" disabled={game.code.length !== 6 || checking}>
-          {checking && <LoaderCircle className="size-6 animate-spin" aria-hidden="true" />}
-          {checking ? t('join.checking') : t('join.cta')}
+        <Button type="submit" size="xl" chip={!busy} className="w-full" disabled={game.code.length !== 6 || busy}>
+          {busy && <LoaderCircle className="size-6 animate-spin" aria-hidden="true" />}
+          {game.busy ? t('join.checking') : t('join.cta')}
         </Button>
       </div>
     </form>
   )
 }
 
-export function TeamScreen({ game }) {
+/** Name + colour, then straight into the waiting room. */
+export function ProfileScreen({ game }) {
   const { t } = useLang()
-  const [name, setName] = useState(game.teamName || '')
-  const joining = game.step === 'joining'
-  const room = game.room
+  const [name, setName] = useState(game.profile.name || '')
+  const [avatar, setAvatar] = useState(game.profile.avatar ?? Math.floor(Math.random() * KITS.length))
+  const meta = game.room?.meta
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        game.joinTeam(name)
+        game.join({ name, avatar })
       }}
       className="relative mx-auto flex w-full max-w-md flex-1 flex-col px-4 pt-6 pb-6"
     >
-      {room && (
+      {meta && (
         <motion.p initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={pop} className="self-start rounded-full bg-land px-4 py-1.5 text-sm font-semibold">
-          {t('team.roomFound', { code: room.roomCode })} · {t(`mode.${room.mode}`)} · {t('common.seconds', { n: room.duration })}
+          {meta.title} · {t(`mode.${meta.mode}`)}
         </motion.p>
       )}
-      <h1 className="display mt-5 text-[clamp(2.75rem,13vw,4rem)]">{t('team.title')}</h1>
-      <p className="mt-3 text-base leading-relaxed text-ink-2">{t('team.body')}</p>
+      <h1 className="display mt-5 text-[clamp(2.75rem,13vw,4rem)]">{t('profile.title')}</h1>
+      <p className="mt-3 text-base leading-relaxed text-ink-2">{t('profile.body')}</p>
 
-      <label htmlFor="team-name" className="mt-8">
-        <Label>{t('team.label')}</Label>
-      </label>
-      <input
-        id="team-name"
-        value={name}
-        onChange={(e) => setName(e.target.value.slice(0, 24))}
-        placeholder={t('team.placeholder')}
-        autoFocus
-        autoComplete="off"
-        enterKeyHint="go"
-        aria-invalid={['empty', 'taken'].includes(game.error) || undefined}
-        className="display mt-2 h-16 rounded-full bg-paper px-6 text-2xl ring-2 ring-inset ring-ink/15 outline-none placeholder:font-sans placeholder:text-base placeholder:font-medium placeholder:tracking-normal placeholder:text-ink-2/80 focus:ring-ink"
-      />
-      <p className="mt-2 pr-4 text-right text-xs text-ink-2 tabular">{name.length}/24</p>
+      <div className="mt-8 flex items-center gap-4">
+        <motion.div key={avatar} initial={{ scale: 0.7, rotate: -10 }} animate={{ scale: 1, rotate: 0 }} transition={pop}>
+          <Avatar name={name || '?'} avatar={avatar} className="size-24" textClass="text-3xl" />
+        </motion.div>
+        <div className="min-w-0 flex-1">
+          <label htmlFor="player-name">
+            <Label>{t('profile.name')}</Label>
+          </label>
+          <input
+            id="player-name"
+            value={name}
+            onChange={(e) => setName(e.target.value.slice(0, 20))}
+            placeholder={t('profile.placeholder')}
+            autoFocus
+            autoComplete="nickname"
+            enterKeyHint="go"
+            aria-invalid={['empty', 'taken'].includes(game.error) || undefined}
+            className="display mt-2 h-14 w-full rounded-full bg-paper px-5 text-xl ring-2 ring-inset ring-ink/15 outline-none placeholder:font-sans placeholder:text-base placeholder:font-medium placeholder:tracking-normal placeholder:text-ink-2/80 focus:ring-ink"
+          />
+        </div>
+      </div>
+
+      <fieldset className="mt-6">
+        <legend>
+          <Label>{t('profile.color')}</Label>
+        </legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {KITS.map((k, i) => (
+            <label key={k.id} className="cursor-pointer">
+              <input type="radio" name="avatar" value={i} checked={avatar === i} onChange={() => setAvatar(i)} className="peer sr-only" />
+              <span
+                className="grid size-11 place-items-center rounded-full ring-offset-2 ring-offset-water peer-checked:ring-[3px] peer-checked:ring-ink peer-focus-visible:outline-3 peer-focus-visible:outline-pond"
+                style={{ background: k.bg }}
+              >
+                {avatar === i && <Check className="size-4" strokeWidth={3} aria-hidden="true" />}
+              </span>
+              <span className="sr-only">{k.id}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <ErrorLine code={game.error} />
 
       <div className="mt-auto pt-8">
-        <Button type="submit" size="xl" chip={!joining} className="w-full" disabled={joining || !name.trim()}>
-          {joining && <LoaderCircle className="size-6 animate-spin" aria-hidden="true" />}
-          {joining ? t('team.joining') : t('team.cta')}
+        <Button type="submit" size="xl" chip={!game.busy} className="w-full" disabled={game.busy || !name.trim()}>
+          {game.busy && <LoaderCircle className="size-6 animate-spin" aria-hidden="true" />}
+          {t('profile.cta')}
         </Button>
       </div>
     </form>
