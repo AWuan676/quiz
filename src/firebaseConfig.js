@@ -7,7 +7,7 @@
  */
 export const firebaseConfig = {
   apiKey: 'AIzaSyC91H5ZZrAF6QnrPh0T--ftOnNysHssbGE',
-  authDomain: 'quiz-map-remake.firebaseapp.com',
+  authDomain: 'quiz-map-remake.web.app',
   databaseURL: 'https://quiz-map-remake-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'quiz-map-remake',
   storageBucket: 'quiz-map-remake.firebasestorage.app',
