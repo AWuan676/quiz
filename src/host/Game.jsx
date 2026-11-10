@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { Check, Eye, Lightbulb, X } from 'lucide-react'
+import { Check, Eye, X } from 'lucide-react'
 import { Button, Label } from '../components/ui.jsx'
 import TimeTrack from '../components/TimeTrack.jsx'
 import RollingNumber from '../components/RollingNumber.jsx'
@@ -24,7 +24,7 @@ function CluesStage({ question, hintsRevealed, revealed }) {
       </p>
       <ol className="mt-6 flex flex-col gap-3">
         {question.hints.map((hint, i) => {
-          const open = i < hintsRevealed
+          const open = Boolean(revealed)
           return (
             <li key={i} className="flex items-start gap-5">
               <span
@@ -44,7 +44,7 @@ function CluesStage({ question, hintsRevealed, revealed }) {
                     {tr(hint)}
                   </motion.p>
                 ) : (
-                  <motion.span key="locked" exit={{ opacity: 0 }} className="mt-3 h-8 w-[min(60%,28rem)] rounded-full bg-water-2" aria-label={t('game.hintLocked')} />
+                  <motion.p key="locked" exit={{ opacity: 0 }} className="pt-3 text-[clamp(1.1rem,1.8vw,1.6rem)] font-semibold text-ink-2">{t('game.clueOnPhone', { n: i + 1 })}</motion.p>
                 )}
               </AnimatePresence>
             </li>
@@ -177,15 +177,14 @@ export default function Game({ game }) {
   const timeUp = isQuestion && remainingMs <= 0
   const allAnswered = isQuestion && teamsArr.length > 0 && teamsArr.every((tm) => answers[tm.id])
   const isLast = state.qIndex + 1 >= total
-  const canHint = isQuestion && mode === 'clues' && state.hintsRevealed < 4 && !timeUp
 
-  // Keyboard: H = next hint, A / Space = show answer, N / → = next
+
+  // Keyboard: A / Space = show answer, N / → = next
   useEffect(() => {
     const onKey = (e) => {
       if (e.target.closest('input, textarea')) return
       const k = e.key.toLowerCase()
-      if (k === 'h' && canHint) actions.revealHint()
-      else if ((k === 'a' || k === ' ') && isQuestion) {
+      if ((k === 'a' || k === ' ') && isQuestion) {
         e.preventDefault()
         actions.showAnswer()
       } else if ((k === 'n' || k === 'arrowright') && state.phase === 'reveal') actions.next()
@@ -266,13 +265,6 @@ export default function Game({ game }) {
             {status}
           </motion.span>
           <div className="flex flex-wrap items-center gap-3">
-            {mode === 'clues' && isQuestion && (
-              <Button variant="outline" size="lg" onClick={actions.revealHint} disabled={!canHint}>
-                <Lightbulb className="size-5" aria-hidden="true" />
-                {t('game.nextHint', { n: Math.min(state.hintsRevealed + 1, 4) })}
-                <Kbd>H</Kbd>
-              </Button>
-            )}
             {isQuestion && (
               <motion.div animate={urgent ? { scale: [1, 1.05, 1] } : { scale: 1 }} transition={{ duration: 1, repeat: urgent ? Infinity : 0 }}>
                 <Button variant="ink" size="lg" onClick={actions.showAnswer}>

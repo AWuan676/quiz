@@ -145,6 +145,7 @@ function NewQuizPanel({ user, navigate, onClose }) {
 
 function PlayPanel({ quiz, user, navigate, onClose }) {
   const { t } = useLang()
+  const isClues = quiz.mode === 'clues'
   const [maxTeam, setMaxTeam] = useState(4)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -152,7 +153,7 @@ function PlayPanel({ quiz, user, navigate, onClose }) {
     setBusy(true)
     setError(null)
     try {
-      const code = await createRoom(user.uid, quiz, maxTeam)
+      const code = await createRoom(user.uid, quiz, isClues ? 4 : maxTeam)
       navigate(`/host/room/${code}`)
     } catch {
       setError(t('library.roomFailed'))
@@ -168,13 +169,20 @@ function PlayPanel({ quiz, user, navigate, onClose }) {
       className="overflow-hidden"
     >
       <div className="mt-4 flex flex-wrap items-end justify-between gap-6 rounded-[2rem] bg-land/40 p-5">
-        <div>
-          <Label>{t('room.maxTeam')}</Label>
-          <div className="mt-2">
-            <Stepper value={maxTeam} onChange={setMaxTeam} min={1} max={10} label={t('room.maxTeam')} unit={t('room.people')} />
+        {isClues ? (
+          <div className="max-w-md">
+            <p className="display text-xl">{t('room.exactly4')}</p>
+            <p className="mt-1 text-sm leading-relaxed text-ink-2">{t('room.exactly4Hint')}</p>
           </div>
-          <p className="mt-2 text-sm text-ink-2">{maxTeam === 1 ? t('room.solo') : t('room.teamHint', { n: maxTeam })}</p>
-        </div>
+        ) : (
+          <div>
+            <Label>{t('room.maxTeam')}</Label>
+            <div className="mt-2">
+              <Stepper value={maxTeam} onChange={setMaxTeam} min={1} max={10} label={t('room.maxTeam')} unit={t('room.people')} />
+            </div>
+            <p className="mt-2 text-sm text-ink-2">{maxTeam === 1 ? t('room.solo') : t('room.teamHint', { n: maxTeam })}</p>
+          </div>
+        )}
         <div className="flex gap-3">
           <Button variant="outline" size="md" onClick={onClose}>
             {t('common.cancel')}

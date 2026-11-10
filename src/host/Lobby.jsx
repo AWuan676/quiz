@@ -7,7 +7,7 @@ import { Blob } from '../components/Lobe.jsx'
 import Avatar from '../components/Avatar.jsx'
 import ModeGuide from '../components/ModeGuide.jsx'
 import { joinUrl } from '../lib/router.js'
-import { groupPlayers } from '../lib/room.js'
+import { CLUES_TEAM_SIZE, groupPlayers } from '../lib/room.js'
 import { pop } from '../lib/motion.js'
 import { useLang } from '../lib/i18n.jsx'
 
@@ -26,6 +26,10 @@ export default function Lobby({ game }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [zoomed])
   const playerCount = Object.keys(room.players || {}).length
+  // Convergent Clues deals one clue per member, so every team must be exactly 4.
+  const needFull = meta.mode === 'clues'
+  const shortTeams = needFull ? groups.filter((g) => g.members.length !== CLUES_TEAM_SIZE) : []
+  const canStart = playerCount > 0 && shortTeams.length === 0
 
   const copy = async () => {
     try {
@@ -58,7 +62,7 @@ export default function Lobby({ game }) {
               {t('common.seconds', { n: meta.duration })} · {t('setup.questionCount', { n: meta.total })}
             </span>
             <span className="rounded-full bg-water-2 px-4 py-1.5 text-sm font-semibold">
-              {meta.maxTeam === 1 ? t('room.solo') : t('room.teamHint', { n: meta.maxTeam })}
+              {needFull ? t('room.exactly4') : meta.maxTeam === 1 ? t('room.solo') : t('room.teamHint', { n: meta.maxTeam })}
             </span>
           </div>
         </motion.section>
@@ -119,6 +123,11 @@ export default function Lobby({ game }) {
                   transition={pop}
                   className={`flex flex-wrap items-center gap-3 rounded-full py-2 pr-5 pl-2 ${g.members.length > 1 ? 'bg-paper ring-2 ring-inset ring-ink/10' : ''}`}
                 >
+                  {needFull && (
+                    <span className={`rounded-full px-2.5 py-1 text-sm font-semibold tabular ${g.members.length === CLUES_TEAM_SIZE ? 'bg-land' : 'bg-coral/40'}`}>
+                      {g.members.length}/{CLUES_TEAM_SIZE}
+                    </span>
+                  )}
                   {g.members.map((m) => (
                     <span key={m.uid} className="group relative flex items-center gap-2">
                       <Avatar name={m.name} avatar={m.avatar} className="size-14" dim={m.online === false} />
@@ -153,8 +162,10 @@ export default function Lobby({ game }) {
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-ink/10 bg-water">
         <div className="mx-auto flex max-w-[1500px] items-center justify-end gap-5 px-5 py-4 sm:px-10">
-          <span className="hidden text-base text-ink-2 md:inline">{playerCount ? t('lobby.readyCount', { n: groups.length }) : t('lobby.needTeam')}</span>
-          <Button size="xl" chip onClick={actions.start} disabled={playerCount === 0}>
+          <span className={`text-base md:inline ${shortTeams.length ? 'font-semibold text-alert' : 'hidden text-ink-2'}`}>
+            {!playerCount ? t('lobby.needTeam') : shortTeams.length ? t('lobby.teamsNotFull', { n: shortTeams.length }) : t('lobby.readyCount', { n: groups.length })}
+          </span>
+          <Button size="xl" chip onClick={actions.start} disabled={!canStart}>
             {t('lobby.start')}
           </Button>
         </div>

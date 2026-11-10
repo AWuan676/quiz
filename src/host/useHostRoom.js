@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { get, remove, runTransaction, serverTimestamp, update } from 'firebase/database'
 import { hostDb } from '../lib/firebase.js'
 import { loadQuiz, acceptedAnswers } from '../lib/quizStore.js'
-import { generateRoomCode, groupPlayers, hashKit, roomPath, roomRef, useRoom } from '../lib/room.js'
+import { dealHints, generateRoomCode, groupPlayers, hashKit, orderedMembers, roomPath, roomRef, useRoom } from '../lib/room.js'
 import { isAnswerMatch, pointsAt } from '../lib/scoring.js'
 
 /** Creates a room with a fresh, unused 6-digit code and returns the code. */
@@ -28,8 +28,20 @@ export async function createRoom(uid, quiz, maxTeam) {
   throw new Error('no-free-code')
 }
 
-function publicQuestion(mode, q, hintsRevealed) {
-  return mode === 'clues' ? { category: q.category, hints: q.hints.slice(0, hintsRevealed) } : { prompt: q.prompt, options: q.options }
+/** What the projector and phones may show. Clues stay on members' phones until the reveal. */
+function publicQuestion(mode, q, revealed = false) {
+  if (mode !== 'clues') return { prompt: q.prompt, options: q.options }
+  return revealed ? { category: q.category, hints: q.hints } : { category: q.category }
+}
+
+/** Deal question q's hints to every member of the given teams: { 'hints/<uid>': {...} }. */
+function hintsPatch(teams, players, q, qIndex) {
+  const patch = {}
+  Object.values(teams).forEach((team) => {
+    const dealt = dealHints(q.hints, orderedMembers(team, players), qIndex)
+    Object.entries(dealt).forEach(([uid, h]) => (patch[`hints/${uid}`] = h))
+  })
+  return patch
 }
 
 /**
@@ -76,18 +88,23 @@ export function useHostRoom(code) {
   useEffect(() => {
     if (!room || !state || state.phase === 'lobby') return
     const teams = room.teams || {}
-    const patch = {}
+    let patch = {}
     groupPlayers(room.players).forEach(({ teamId, members }) => {
       if (teams[teamId]) return
-      patch[`teams/${teamId}`] = {
+      const team = {
         members: Object.fromEntries(members.map((m) => [m.uid, m.name])),
         kit: hashKit(teamId),
         score: 0,
         lastGain: 0,
       }
+      patch[`teams/${teamId}`] = team
+      // A late team still needs its clues for the question in play.
+      if (meta?.mode === 'clues' && state.phase === 'question' && quiz) {
+        patch = { ...patch, ...hintsPatch({ [teamId]: team }, room.players, quiz.questions[state.qIndex], state.qIndex) }
+      }
     })
     if (Object.keys(patch).length) write(patch)
-  }, [room, state, write])
+  }, [room, state, meta, quiz, write])
 
   const actions = useMemo(
     () => ({
@@ -102,18 +119,16 @@ export function useHostRoom(code) {
           }
         })
         scoredRef.current = new Set()
+        const q0 = quiz.questions[0]
         return write({
           teams,
           answers: null,
           results: null,
           reveal: null,
-          question: publicQuestion(meta.mode, quiz.questions[0], 1),
-          state: { phase: 'question', qIndex: 0, startedAt: serverTimestamp(), hintsRevealed: 1 },
-        })
-      },
-      revealHint: () => {
-        const n = Math.min(4, (state.hintsRevealed || 1) + 1)
-        return write({ 'state/hintsRevealed': n, question: publicQuestion(meta.mode, question, n) })
+          hints: null, // cleared here, dealt in a second write: one update cannot null a parent and set its children
+          question: publicQuestion(meta.mode, q0),
+          state: { phase: 'question', qIndex: 0, startedAt: serverTimestamp(), hintsRevealed: 0 },
+        }).then(() => (meta.mode === 'clues' ? write(hintsPatch(teams, room.players, q0, 0)) : undefined))
       },
       showAnswer: () => {
         const results = room.results?.[state.qIndex] || {}
@@ -121,7 +136,7 @@ export function useHostRoom(code) {
         const patch = {
           'state/phase': 'reveal',
           'state/hintsRevealed': 4,
-          question: publicQuestion(meta.mode, question, 4),
+          question: publicQuestion(meta.mode, question, true),
           reveal: meta.mode === 'clues' ? { text: question.answer } : { index: question.correct },
         }
         Object.entries(room.teams || {}).forEach(([teamId, t]) => {
@@ -137,10 +152,13 @@ export function useHostRoom(code) {
       next: () => {
         const nextIndex = state.qIndex + 1
         if (nextIndex >= quiz.questions.length) return write({ 'state/phase': 'final' })
+        const nq = quiz.questions[nextIndex]
         return write({
           reveal: null,
-          question: publicQuestion(meta.mode, quiz.questions[nextIndex], 1),
-          state: { phase: 'question', qIndex: nextIndex, startedAt: serverTimestamp(), hintsRevealed: 1 },
+          question: publicQuestion(meta.mode, nq),
+          // Deal the new clues in the same write as the phase change, so nobody sees an empty phone.
+          ...(meta.mode === 'clues' ? hintsPatch(room.teams || {}, room.players, nq, nextIndex) : {}),
+          state: { phase: 'question', qIndex: nextIndex, startedAt: serverTimestamp(), hintsRevealed: 0 },
         })
       },
       restart: () =>
@@ -149,6 +167,7 @@ export function useHostRoom(code) {
           answers: null,
           results: null,
           reveal: null,
+          hints: null,
           question: null,
           state: { phase: 'lobby', qIndex: 0, startedAt: 0, hintsRevealed: 1 },
         }),
