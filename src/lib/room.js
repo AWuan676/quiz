@@ -105,9 +105,10 @@ export function hashKit(id = '') {
 }
 
 /** Players grouped by the team they picked in the lobby: [{ teamId, members: [player…] }]. */
-export function groupPlayers(players = {}) {
+export function groupPlayers(players) {
   const groups = new Map()
-  Object.entries(players).forEach(([uid, p]) => {
+  // Firebase returns null (not undefined) for an empty node, so default parameters don't help.
+  Object.entries(players || {}).forEach(([uid, p]) => {
     if (!p?.name) return // a stray presence write after a kick
     const teamId = p.teamId || uid
     if (!groups.has(teamId)) groups.set(teamId, [])
@@ -121,8 +122,8 @@ export function groupPlayers(players = {}) {
 export const teamName = (memberNames) => memberNames.join(' · ')
 
 /** Frozen teams as a ranked array with display fields. */
-export function rankedTeams(teams = {}) {
-  return Object.entries(teams)
+export function rankedTeams(teams) {
+  return Object.entries(teams || {})
     .map(([id, t]) => ({
       id,
       ...t,
