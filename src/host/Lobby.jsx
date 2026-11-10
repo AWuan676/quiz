@@ -26,10 +26,10 @@ export default function Lobby({ game }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [zoomed])
   const playerCount = Object.keys(room.players || {}).length
-  // Convergent Clues deals one clue per member, so every team must be exactly 4.
+  // Convergent Clues deals one clue per member: a team's size is how many clues it holds.
   const needFull = meta.mode === 'clues'
-  const shortTeams = needFull ? groups.filter((g) => g.members.length !== CLUES_TEAM_SIZE) : []
-  const canStart = playerCount > 0 && shortTeams.length === 0
+  const shortTeams = []
+  const canStart = playerCount > 0
 
   const copy = async () => {
     try {
@@ -124,8 +124,8 @@ export default function Lobby({ game }) {
                   className={`flex flex-wrap items-center gap-3 rounded-full py-2 pr-5 pl-2 ${g.members.length > 1 ? 'bg-paper ring-2 ring-inset ring-ink/10' : ''}`}
                 >
                   {needFull && (
-                    <span className={`rounded-full px-2.5 py-1 text-sm font-semibold tabular ${g.members.length === CLUES_TEAM_SIZE ? 'bg-land' : 'bg-coral/40'}`}>
-                      {g.members.length}/{CLUES_TEAM_SIZE}
+                    <span className={`rounded-full px-2.5 py-1 text-sm font-semibold tabular ${g.members.length === CLUES_TEAM_SIZE ? 'bg-land' : 'bg-sun'}`}>
+                      {t('lobby.cluesN', { n: Math.min(g.members.length, CLUES_TEAM_SIZE) })}
                     </span>
                   )}
                   {g.members.map((m) => (
