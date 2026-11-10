@@ -2,18 +2,26 @@
   "rules": {
     "rooms": {
       "$code": {
-        ".read": "auth != null",
+        ".read": "auth != null && data.child('meta/hostUid').val() === auth.uid",
         ".write": "auth != null && data.child('meta/hostUid').val() === auth.uid",
         "meta": {
+          ".read": "auth != null",
           ".write": "auth != null && !data.exists() && newData.child('hostUid').val() === auth.uid"
         },
+        "state": { ".read": "auth != null" },
+        "question": { ".read": "auth != null" },
+        "reveal": { ".read": "auth != null" },
+        "teams": { ".read": "auth != null" },
+        "results": { ".read": "auth != null" },
         "players": {
+          ".read": "auth != null",
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && root.child('rooms/' + $code + '/meta').exists()",
             "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" }
           }
         },
         "invites": {
+          ".read": "auth != null",
           "$to": {
             ".write": "auth != null && auth.uid === $to",
             "$from": {
@@ -21,7 +29,13 @@
             }
           }
         },
+        "hints": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid"
+          }
+        },
         "answers": {
+          ".read": "auth != null",
           "$q": {
             "$team": {
               ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid && root.child('rooms/' + $code + '/players/' + auth.uid + '/teamId').val() === $team && root.child('rooms/' + $code + '/state/phase').val() === 'question' && root.child('rooms/' + $code + '/state/qIndex').val() + '' === $q"
