@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { get, onDisconnect, remove, serverTimestamp, set, update } from 'firebase/database'
+import { get, onDisconnect, onValue, remove, serverTimestamp, set, update } from 'firebase/database'
 import { ensurePlayerUser, playerDb } from '../lib/firebase.js'
-import { groupPlayers, roomRef, useRoom } from '../lib/room.js'
+import { PUBLIC_KEYS, groupPlayers, roomRef, useRoom } from '../lib/room.js'
 
 const PROFILE_KEY = 'mq-profile'
 
@@ -26,7 +26,14 @@ export function usePlayerRoom(initialCode) {
   const [busy, setBusy] = useState(false)
   const profile = useMemo(loadProfile, [])
 
-  const { room, missing } = useRoom(playerDb, activeCode)
+  const { room, missing } = useRoom(playerDb, activeCode, PUBLIC_KEYS)
+  const [myHints, setMyHints] = useState(null)
+
+  // This player's private clues (Convergent Clues): readable by them alone.
+  useEffect(() => {
+    if (step !== 'in' || !uid || !activeCode) return undefined
+    return onValue(roomRef(playerDb, activeCode, `hints/${uid}`), (s) => setMyHints(s.val()), () => setMyHints(null))
+  }, [step, uid, activeCode])
   const me = uid && room?.players?.[uid] ? { uid, ...room.players[uid] } : null
 
   // Sign in anonymously once; resume straight into the room if this tab was already in it.
@@ -206,6 +213,7 @@ export function usePlayerRoom(initialCode) {
     busy,
     room,
     me,
+    myHints,
     profile,
     maxTeam,
     groups,

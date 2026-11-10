@@ -135,25 +135,35 @@ function CluesPad({ game }) {
       <p className="display text-xl">
         <span className="text-ink-2">{t('game.cluesPrompt')}</span> {tr(q?.category)}
       </p>
-      <ol className="mt-4 flex flex-col gap-3">
-        {[0, 1, 2, 3].map((i) => {
-          const hint = q?.hints[i]
-          return (
-            <li key={i} className="flex items-start gap-3">
-              <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold ${hint ? 'bg-ink text-water' : 'bg-water-2 text-ink-2'}`}>{i + 1}</span>
-              <AnimatePresence mode="wait" initial={false}>
-                {hint ? (
-                  <motion.span key="open" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={pop} className="pt-1 text-base leading-snug font-medium">
-                    {tr(hint)}
-                  </motion.span>
-                ) : (
-                  <span key="locked" className="mt-1.5 h-5 w-2/3 rounded-full bg-water-2" aria-label={t('game.hintLocked')} />
-                )}
-              </AnimatePresence>
-            </li>
-          )
-        })}
-      </ol>
+      {/* This player's own clue(s); teammates hold the rest. */}
+      <section aria-labelledby="my-clue" className="mt-4">
+        <Label>
+          <span id="my-clue">{(game.myClues?.length ?? 0) > 1 ? t('play.yourClues') : t('play.yourClue')}</span>
+        </Label>
+        {game.myClues === null ? (
+          <p className="mt-2 flex items-center gap-2 text-base text-ink-2">
+            <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> {t('play.dealing')}
+          </p>
+        ) : (
+          <ul className="mt-2 flex flex-col gap-3">
+            {game.myClues.map((c) => (
+              <motion.li
+                key={c.n}
+                initial={{ opacity: 0, y: 16, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={pop}
+                className="flex items-start gap-3 rounded-[1.75rem] bg-sun p-4"
+              >
+                <span className="display grid size-10 shrink-0 place-items-center rounded-full bg-ink text-lg text-water">{c.n}</span>
+                <span className="pt-1.5 text-lg leading-snug font-semibold">{tr(c.text)}</span>
+              </motion.li>
+            ))}
+          </ul>
+        )}
+        {game.myClues && game.myClues.length < 4 && (
+          <p className="mt-3 text-sm leading-snug text-ink-2">{t('play.askTeam', { n: 4 - game.myClues.length })}</p>
+        )}
+      </section>
 
       <label htmlFor="clue-answer" className="mt-8">
         <Label>{t('play.yourAnswer')}</Label>

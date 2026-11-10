@@ -100,6 +100,7 @@ function useGameView(initialCode) {
     me: team ? { ...team, memberCount: Object.keys(team.members || {}).length } : null,
     pending: answer ? { qIndex: q, value: answer.value } : null,
     answeredBy: answer && answer.uid !== me.uid ? answer.name : null,
+    myClues: raw.myHints?.q === q ? raw.myHints.items || [] : null,
   }
 
   if (state.phase === 'final') return { ...view, screenKey: 'final', screen: <FinalScreen game={view} /> }
