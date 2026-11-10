@@ -19,24 +19,67 @@ import { KITS } from './kits.js'
 export const roomPath = (code, path = '') => `rooms/${code}${path ? `/${path}` : ''}`
 export const roomRef = (db, code, path) => ref(db, roomPath(code, path))
 
-/** Live room data. `missing` is true once we know the room does not exist. */
-export function useRoom(db, code) {
+/** The parts of a room any player may read. Each player's private hints live elsewhere (hints/{uid}). */
+export const PUBLIC_KEYS = ['meta', 'state', 'question', 'reveal', 'players', 'invites', 'teams', 'answers', 'results']
+
+/**
+ * Live room data. `missing` is true once we know the room does not exist.
+ * The host reads the whole room; players subscribe to the public children only,
+ * because the security rules keep each player's hints private.
+ */
+export function useRoom(db, code, keys = null) {
   const [room, setRoom] = useState(null)
   const [missing, setMissing] = useState(false)
+  const keyList = keys ? keys.join(',') : ''
   useEffect(() => {
     if (!db || !code) return undefined
     setMissing(false)
-    return onValue(
-      roomRef(db, code),
-      (snap) => {
-        setRoom(snap.val())
-        setMissing(!snap.exists())
-      },
-      () => setMissing(true),
+    if (!keyList) {
+      return onValue(
+        roomRef(db, code),
+        (snap) => {
+          setRoom(snap.val())
+          setMissing(!snap.exists())
+        },
+        () => setMissing(true),
+      )
+    }
+    const data = {}
+    const unsubs = keyList.split(',').map((key) =>
+      onValue(
+        roomRef(db, code, key),
+        (snap) => {
+          data[key] = snap.val()
+          if (key === 'meta') setMissing(!snap.exists())
+          setRoom({ ...data })
+        },
+        () => key === 'meta' && setMissing(true),
+      ),
     )
-  }, [db, code])
+    return () => unsubs.forEach((u) => u())
+  }, [db, code, keyList])
   return { room, missing }
 }
+
+/**
+ * Convergent Clues in teams: the 4 hints are dealt across the team, one per member
+ * (round-robin if a team is short, e.g. a late joiner playing alone gets all four).
+ * Returns { uid: { q, items: [{ n, text }] } }.
+ */
+export function dealHints(hints, memberUids, qIndex) {
+  const out = {}
+  memberUids.forEach((uid) => (out[uid] = { q: qIndex, items: [] }))
+  if (!memberUids.length) return out
+  hints.forEach((text, i) => out[memberUids[i % memberUids.length]].items.push({ n: i + 1, text }))
+  return out
+}
+
+/** Team members in join order, so each player keeps the same hint slot all game. */
+export function orderedMembers(team, players = {}) {
+  return Object.keys(team?.members || {}).sort((a, b) => (players[a]?.joinedAt ?? 0) - (players[b]?.joinedAt ?? 0))
+}
+
+export const CLUES_TEAM_SIZE = 4
 
 /** Date.now() corrected to the Firebase server clock, ticking while `active`. */
 export function useServerNow(db, active = true, interval = 100) {
