@@ -71,7 +71,7 @@ export default function LobbyScreen({ game }) {
             ))}
           </ul>
           {room.meta.mode === 'clues' && myMembers.length < 4 && (
-            <p className="mt-3 rounded-2xl bg-sun/60 px-4 py-2 text-sm leading-snug font-semibold">{t('team.need4', { n: 4 - myMembers.length })}</p>
+            <p className="mt-3 rounded-2xl bg-sun/60 px-4 py-2 text-sm leading-snug font-semibold">{t('team.need4', { n: myMembers.length })}</p>
           )}
           {myMembers.length > 1 && (
             <button type="button" onClick={game.leaveTeam} className="mt-4 inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold ring-2 ring-inset ring-ink/15 hover:bg-ink/5">

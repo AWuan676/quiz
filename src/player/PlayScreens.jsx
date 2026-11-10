@@ -160,8 +160,10 @@ function CluesPad({ game }) {
             ))}
           </ul>
         )}
-        {game.myClues && game.myClues.length < 4 && (
-          <p className="mt-3 text-sm leading-snug text-ink-2">{t('play.askTeam', { n: 4 - game.myClues.length })}</p>
+        {game.myClues && (
+          <p className="mt-3 text-sm leading-snug text-ink-2">
+            {(game.me?.memberCount ?? 1) > 1 ? t('play.askTeam', { n: game.me.memberCount - 1 }) : t('play.soloClue')}
+          </p>
         )}
       </section>
 
