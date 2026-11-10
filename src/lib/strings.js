@@ -74,6 +74,8 @@ export const EXTRA = {
     'room.notOwner': 'Phòng này do tài khoản khác tạo.',
 
     'lobby.playersN': '{n} người',
+    'lobby.qrZoom': 'Phóng to mã QR',
+    'lobby.qrClose': 'Thu nhỏ mã QR',
     'lobby.empty': 'Đang chờ người đầu tiên',
     'lobby.readyCount': '{n} đội sẵn sàng',
 
@@ -197,6 +199,8 @@ export const EXTRA = {
     'room.notOwner': 'This room was created by another account.',
 
     'lobby.playersN': '{n} people',
+    'lobby.qrZoom': 'Enlarge QR code',
+    'lobby.qrClose': 'Close enlarged QR code',
     'lobby.empty': 'Waiting for the first player',
     'lobby.readyCount': '{n} teams ready',
 
