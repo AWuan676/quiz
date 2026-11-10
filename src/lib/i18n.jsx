@@ -72,7 +72,7 @@ const dict = {
     'setup.openRoom': 'Mở phòng',
 
     'mode.clues': 'Gợi ý hội tụ',
-    'mode.clues.desc': 'Đội 4 người, mỗi người giữ 1 trong 4 gợi ý trên điện thoại. Cả đội ghép gợi ý lại để đoán đáp án: chốt sớm được nhiều điểm hơn.',
+    'mode.clues.desc': 'Mỗi người giữ 1 gợi ý trên điện thoại, đội tối đa 4 người. Cả đội ghép gợi ý lại để đoán đáp án: chốt sớm được nhiều điểm hơn.',
     'mode.standard': 'Trắc nghiệm',
     'mode.standard.desc': '1 câu hỏi, 4 lựa chọn A B C D. Chọn đúng càng nhanh, điểm càng cao.',
 
@@ -216,7 +216,7 @@ const dict = {
     'setup.openRoom': 'Open room',
 
     'mode.clues': 'Convergent Clues',
-    'mode.clues.desc': 'Teams of 4, each member holds 1 of the 4 clues on their phone. The team pieces them together: lock in early, score more.',
+    'mode.clues.desc': 'Each member holds 1 clue on their phone, teams of up to 4. The team pieces them together: lock in early, score more.',
     'mode.standard': 'Standard Quiz',
     'mode.standard.desc': '1 question, 4 options A B C D. The faster the right pick, the higher the score.',
 
