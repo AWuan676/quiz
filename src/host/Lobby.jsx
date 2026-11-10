@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
-import { Copy, Check, ExternalLink, X } from 'lucide-react'
+import { Copy, Check, ExternalLink, Maximize2, X } from 'lucide-react'
 import { Button, Label } from '../components/ui.jsx'
 import { Blob } from '../components/Lobe.jsx'
 import Avatar from '../components/Avatar.jsx'
@@ -16,7 +16,15 @@ export default function Lobby({ game }) {
   const { code, room, meta, actions } = game
   const url = joinUrl(code)
   const [copied, setCopied] = useState(false)
+  const [zoomed, setZoomed] = useState(false)
   const groups = groupPlayers(room.players)
+
+  useEffect(() => {
+    if (!zoomed) return undefined
+    const onKey = (e) => e.key === 'Escape' && setZoomed(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [zoomed])
   const playerCount = Object.keys(room.players || {}).length
 
   const copy = async () => {
@@ -62,10 +70,22 @@ export default function Lobby({ game }) {
           className="relative grid size-[min(88vw,420px)] place-items-center justify-self-center"
         >
           <Blob variant={1} color="var(--color-land)" className="absolute inset-0" />
-          <div className="relative flex flex-col items-center rounded-[2.25rem] bg-water p-5">
+          <motion.button
+            type="button"
+            onClick={() => setZoomed(true)}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            transition={pop}
+            aria-label={t('lobby.qrZoom')}
+            title={t('lobby.qrZoom')}
+            className="group relative flex cursor-zoom-in flex-col items-center rounded-[2.25rem] bg-water p-5"
+          >
             <QRCodeSVG value={url} size={210} level="M" fgColor="#2C2E2A" bgColor="#F5F1E4" title={t('lobby.qrTitle')} className="h-auto w-[min(50vw,210px)]" />
             <p className="mt-3 max-w-[210px] text-center text-sm leading-snug font-semibold">{t('lobby.scan')}</p>
-          </div>
+            <span className="absolute -top-3 -right-3 grid size-10 place-items-center rounded-full bg-ink text-water transition-transform group-hover:scale-110">
+              <Maximize2 className="size-4" aria-hidden="true" />
+            </span>
+          </motion.button>
           <div className="absolute -bottom-2 flex gap-2">
             <button type="button" onClick={copy} className="inline-flex h-10 items-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-water uppercase">
               {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
@@ -139,6 +159,49 @@ export default function Lobby({ game }) {
           </Button>
         </div>
       </div>
+
+      {/* Enlarged QR for the back rows */}
+      <AnimatePresence>
+        {zoomed && (
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('lobby.qrTitle')}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setZoomed(false)}
+            className="fixed inset-0 z-50 flex cursor-zoom-out flex-col items-center justify-center gap-6 bg-water p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.6 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              transition={pop}
+              className="rounded-[3rem] bg-land p-[min(3vw,2rem)]"
+            >
+              <div className="rounded-[2.25rem] bg-water p-[min(3vw,2rem)]">
+                <QRCodeSVG value={url} size={720} level="M" fgColor="#2C2E2A" bgColor="#F5F1E4" title={t('lobby.qrTitle')} className="h-auto w-[min(70vh,82vw)]" />
+              </div>
+            </motion.div>
+            <p className="display tabular text-[clamp(3rem,7vh,6rem)]">
+              {code.slice(0, 3)}
+              <span className="inline-block w-[0.18em]" />
+              {code.slice(3)}
+            </p>
+            <button
+              type="button"
+              onClick={() => setZoomed(false)}
+              autoFocus
+              aria-label={t('lobby.qrClose')}
+              className="absolute top-5 right-5 grid size-14 place-items-center rounded-full bg-ink text-water"
+            >
+              <X className="size-6" aria-hidden="true" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
