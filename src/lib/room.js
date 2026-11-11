@@ -62,14 +62,21 @@ export function useRoom(db, code, keys = null) {
 }
 
 /**
- * Convergent Clues in teams: one clue per member, in join order. A team of 2 sees
- * clues 1-2, a solo player only clue 1, a full team of 4 all four: bigger teams
- * hold more of the picture. Returns { uid: { q, items: [{ n, text }] } }.
+ * Convergent Clues in teams: each member gets one clue, picked at random without
+ * repeats from the 4 (a solo player gets 1 random clue, a pair 2 different ones,
+ * a full team all 4). The draw is fresh for every team and every question.
+ * Returns { uid: { q, items: [{ n, text }] } }.
  */
 export function dealHints(hints, memberUids, qIndex) {
+  const order = hints.map((_, i) => i)
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[order[i], order[j]] = [order[j], order[i]]
+  }
   const out = {}
   memberUids.forEach((uid, i) => {
-    out[uid] = { q: qIndex, items: hints[i] !== undefined ? [{ n: i + 1, text: hints[i] }] : [] }
+    const pick = order[i]
+    out[uid] = { q: qIndex, items: pick !== undefined ? [{ n: pick + 1, text: hints[pick] }] : [] }
   })
   return out
 }
