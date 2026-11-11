@@ -1,24 +1,29 @@
 import { motion } from 'framer-motion'
-import { Lightbulb, Keyboard, Users, Timer, MonitorPlay, MousePointerClick } from 'lucide-react'
+import { Keyboard, MessagesSquare, MonitorPlay, MousePointerClick, Shuffle, SkipForward, Timer, Users } from 'lucide-react'
 import { pop } from '../lib/motion.js'
 import { useLang } from '../lib/i18n.jsx'
 
 const STEPS = {
   clues: [
-    { Icon: Lightbulb, key: 'guide.clues.1', color: 'var(--color-sun)' },
-    { Icon: Keyboard, key: 'guide.clues.2', color: 'var(--color-pond)' },
-    { Icon: Users, key: 'guide.team', color: 'var(--color-lilac)' },
-    { Icon: Timer, key: 'guide.clues.4', color: 'var(--color-land)' },
+    { Icon: MonitorPlay, key: 'guide.clues.screen', color: 'var(--color-sun)' },
+    { Icon: Shuffle, key: 'guide.clues.deal', color: 'var(--color-lilac)' },
+    { Icon: MessagesSquare, key: 'guide.clues.talk', color: 'var(--color-pond)' },
+    { Icon: Keyboard, key: 'guide.clues.type', color: 'var(--color-coral)' },
+    { Icon: Users, key: 'guide.team', color: 'var(--color-land)' },
+    { Icon: Timer, key: 'guide.score', color: 'var(--color-sun)' },
+    { Icon: SkipForward, key: 'guide.auto', color: 'var(--color-lilac)' },
   ],
   standard: [
-    { Icon: MonitorPlay, key: 'guide.standard.1', color: 'var(--color-sun)' },
-    { Icon: MousePointerClick, key: 'guide.standard.2', color: 'var(--color-coral)' },
-    { Icon: Users, key: 'guide.team', color: 'var(--color-lilac)' },
-    { Icon: Timer, key: 'guide.standard.4', color: 'var(--color-land)' },
+    { Icon: MonitorPlay, key: 'guide.standard.screen', color: 'var(--color-sun)' },
+    { Icon: MousePointerClick, key: 'guide.standard.tap', color: 'var(--color-coral)' },
+    { Icon: MessagesSquare, key: 'guide.standard.talk', color: 'var(--color-pond)' },
+    { Icon: Users, key: 'guide.team', color: 'var(--color-land)' },
+    { Icon: Timer, key: 'guide.score', color: 'var(--color-sun)' },
+    { Icon: SkipForward, key: 'guide.auto', color: 'var(--color-lilac)' },
   ],
 }
 
-/** How to play, for the mode the host picked. Shown in both waiting rooms. */
+/** How to play, step by step, for the mode the host picked. Shown in both waiting rooms. */
 export default function ModeGuide({ mode, duration, multiTry = false, compact = false }) {
   const { t } = useLang()
   return (
@@ -35,10 +40,13 @@ export default function ModeGuide({ mode, duration, multiTry = false, compact = 
             transition={{ ...pop, delay: 0.05 * i }}
             className="flex items-start gap-3"
           >
-            <span className="grid size-11 shrink-0 place-items-center rounded-full" style={{ background: color }}>
+            <span className="relative grid size-11 shrink-0 place-items-center rounded-full" style={{ background: color }}>
               <Icon className="size-5" aria-hidden="true" />
+              <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-ink text-[0.65rem] font-semibold text-water">{i + 1}</span>
             </span>
-            <p className={`pt-1 leading-snug ${compact ? 'text-sm' : 'text-base'}`}>{t(key === 'guide.team' && multiTry ? 'guide.teamMulti' : key, { s: duration })}</p>
+            <p className={`pt-1 leading-snug ${compact ? 'text-sm' : 'text-base'}`}>
+              {t(key === 'guide.team' && multiTry ? 'guide.teamMulti' : key, { s: duration })}
+            </p>
           </motion.li>
         ))}
       </ol>
