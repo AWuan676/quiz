@@ -61,6 +61,7 @@ export default function Lobby({ game }) {
             <span className="rounded-full bg-lilac px-4 py-1.5 text-sm font-semibold">
               {t('common.seconds', { n: meta.duration })} · {t('setup.questionCount', { n: meta.total })}
             </span>
+            <span className="rounded-full bg-pond/40 px-4 py-1.5 text-sm font-semibold">{meta.multiTry ? t('room.multiTry') : t('room.oneTry')}</span>
             <span className="rounded-full bg-water-2 px-4 py-1.5 text-sm font-semibold">
               {needFull ? t('room.exactly4') : meta.maxTeam === 1 ? t('room.solo') : t('room.teamHint', { n: meta.maxTeam })}
             </span>
@@ -156,7 +157,7 @@ export default function Lobby({ game }) {
           </ul>
         </section>
         <aside className="rounded-[2.5rem] bg-paper p-6 ring-2 ring-inset ring-ink/10">
-          <ModeGuide mode={meta.mode} duration={meta.duration} compact />
+          <ModeGuide mode={meta.mode} duration={meta.duration} multiTry={meta.multiTry} compact />
         </aside>
       </div>
 

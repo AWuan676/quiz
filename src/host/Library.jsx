@@ -147,13 +147,14 @@ function PlayPanel({ quiz, user, navigate, onClose }) {
   const { t } = useLang()
   const isClues = quiz.mode === 'clues'
   const [maxTeam, setMaxTeam] = useState(4)
+  const [multiTry, setMultiTry] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const open = async () => {
     setBusy(true)
     setError(null)
     try {
-      const code = await createRoom(user.uid, quiz, isClues ? 4 : maxTeam)
+      const code = await createRoom(user.uid, quiz, isClues ? 4 : maxTeam, multiTry)
       navigate(`/host/room/${code}`)
     } catch {
       setError(t('library.roomFailed'))
@@ -183,6 +184,24 @@ function PlayPanel({ quiz, user, navigate, onClose }) {
             <p className="mt-2 text-sm text-ink-2">{maxTeam === 1 ? t('room.solo') : t('room.teamHint', { n: maxTeam })}</p>
           </div>
         )}
+        <div className="max-w-sm">
+          <Label>{t('room.answerMode')}</Label>
+          <div role="radiogroup" aria-label={t('room.answerMode')} className="mt-2 flex flex-wrap gap-2">
+            {[false, true].map((multi) => (
+              <button
+                key={String(multi)}
+                type="button"
+                role="radio"
+                aria-checked={multiTry === multi}
+                onClick={() => setMultiTry(multi)}
+                className={`h-11 rounded-full px-4 text-sm font-semibold transition-colors ${multiTry === multi ? 'bg-ink text-water' : 'bg-water ring-2 ring-inset ring-ink/15 hover:ring-ink/40'}`}
+              >
+                {multi ? t('room.multiTry') : t('room.oneTry')}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-ink-2">{multiTry ? t('room.multiTryHint') : t('room.oneTryHint')}</p>
+        </div>
         <div className="flex gap-3">
           <Button variant="outline" size="md" onClick={onClose}>
             {t('common.cancel')}

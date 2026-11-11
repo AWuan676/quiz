@@ -139,7 +139,13 @@ function Standings({ teams, phase, mode }) {
                     <Check className="size-4" strokeWidth={3} aria-label={t('game.answered')} />
                   </motion.span>
                 ) : (
-                  <span className="size-7 rounded-full border-2 border-dashed border-ink/30" aria-label={t('game.thinking')} />
+                  team.tries > 0 ? (
+                    <span className="rounded-full bg-coral/40 px-2 py-0.5 text-xs font-semibold tabular" title={t('game.wrongTries', { n: team.tries })}>
+                      {t('game.wrongTries', { n: team.tries })}
+                    </span>
+                  ) : (
+                    <span className="size-7 rounded-full border-2 border-dashed border-ink/30" aria-label={t('game.thinking')} />
+                  )
                 ))}
               {showGains && (
                 <motion.span
@@ -167,6 +173,9 @@ export default function Game({ game }) {
   const { room, meta, state, actions, question } = game
   const { mode, duration, total } = meta
   const answers = room.answers?.[state.qIndex] || {}
+  const results = room.results?.[state.qIndex] || {}
+  // In multi-try rooms a team is done once it is right (or out of time), not after its first guess.
+  const done = (id) => Boolean(answers[id]) || Boolean(results[id] && !results[id].retry)
   const teamsArr = rankedTeams(room.teams)
   const isQuestion = state.phase === 'question'
   const now = useServerNow(hostDb, isQuestion, 100)
@@ -175,7 +184,7 @@ export default function Game({ game }) {
   const remainingMs = isQuestion ? Math.max(0, endsAt - now) : 0
   const livePoints = pointsAt(remainingMs, totalMs)
   const timeUp = isQuestion && remainingMs <= 0
-  const allAnswered = isQuestion && teamsArr.length > 0 && teamsArr.every((tm) => answers[tm.id])
+  const allAnswered = isQuestion && teamsArr.length > 0 && teamsArr.every((tm) => done(tm.id))
   const isLast = state.qIndex + 1 >= total
 
 
@@ -193,7 +202,7 @@ export default function Game({ game }) {
     return () => window.removeEventListener('keydown', onKey)
   })
 
-  const snapshotTeams = teamsArr.map((tm) => ({ ...tm, answered: Boolean(answers[tm.id]) }))
+  const snapshotTeams = teamsArr.map((tm) => ({ ...tm, answered: done(tm.id), tries: results[tm.id]?.wrong ? Object.keys(results[tm.id].wrong).length : 0 }))
   const publicQuestion =
     mode === 'clues' ? { category: question.category, hints: question.hints } : { prompt: question.prompt, options: question.options }
   const revealed = state.phase === 'reveal' ? (mode === 'clues' ? { text: question.answer } : { index: question.correct }) : null

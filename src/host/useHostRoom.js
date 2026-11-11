@@ -6,7 +6,7 @@ import { dealHints, generateRoomCode, groupPlayers, hashKit, orderedMembers, roo
 import { isAnswerMatch, pointsAt } from '../lib/scoring.js'
 
 /** Creates a room with a fresh, unused 6-digit code and returns the code. */
-export async function createRoom(uid, quiz, maxTeam) {
+export async function createRoom(uid, quiz, maxTeam, multiTry = false) {
   for (let attempt = 0; attempt < 8; attempt++) {
     const code = generateRoomCode()
     const meta = {
@@ -17,6 +17,8 @@ export async function createRoom(uid, quiz, maxTeam) {
       duration: quiz.duration,
       total: quiz.questions.length,
       maxTeam,
+      // false: one answer per team per question. true: keep trying until right or time runs out.
+      multiTry: Boolean(multiTry),
       createdAt: Date.now(),
     }
     const tx = await runTransaction(roomRef(hostDb, code, 'meta'), (current) => (current ? undefined : meta))
@@ -74,12 +76,20 @@ export function useHostRoom(code) {
     const endsAt = state.startedAt + totalMs
     const patch = {}
     Object.entries(answers).forEach(([teamId, a]) => {
-      const key = `${state.qIndex}:${teamId}`
-      if (results[teamId] || scoredRef.current.has(key) || typeof a.at !== 'number') return
+      const prev = results[teamId]
+      const key = `${state.qIndex}:${teamId}:${a.at}`
+      if ((prev && !prev.retry) || scoredRef.current.has(key) || typeof a.at !== 'number') return
       scoredRef.current.add(key)
       const late = a.at > endsAt
       const correct = !late && (meta.mode === 'clues' ? isAnswerMatch(a.value, acceptedAnswers(q)) : Number(a.value) === q.correct)
-      patch[`results/${state.qIndex}/${teamId}`] = { correct, late, points: correct ? pointsAt(endsAt - a.at, totalMs) : 0 }
+      const wrong = prev?.wrong || []
+      if (!correct && !late && meta.multiTry) {
+        // Multi-try: record the miss and clear the answer so the team can try again.
+        patch[`results/${state.qIndex}/${teamId}`] = { correct: false, retry: true, points: 0, wrong: [...wrong, a.value] }
+        patch[`answers/${state.qIndex}/${teamId}`] = null
+      } else {
+        patch[`results/${state.qIndex}/${teamId}`] = { correct, late, points: correct ? pointsAt(endsAt - a.at, totalMs) : 0, wrong }
+      }
     })
     if (Object.keys(patch).length) write(patch)
   }, [room, quiz, state, meta, write])
@@ -145,7 +155,7 @@ export function useHostRoom(code) {
           patch[`teams/${teamId}/score`] = (t.score || 0) + gain
           patch[`teams/${teamId}/lastGain`] = gain
           patch[`teams/${teamId}/lastCorrect`] = r ? r.correct : null
-          patch[`teams/${teamId}/lastValue`] = answers[teamId]?.value ?? null
+          patch[`teams/${teamId}/lastValue`] = answers[teamId]?.value ?? r?.wrong?.[r.wrong.length - 1] ?? null
         })
         return write(patch)
       },
