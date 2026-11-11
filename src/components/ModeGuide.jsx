@@ -19,7 +19,7 @@ const STEPS = {
 }
 
 /** How to play, for the mode the host picked. Shown in both waiting rooms. */
-export default function ModeGuide({ mode, duration, compact = false }) {
+export default function ModeGuide({ mode, duration, multiTry = false, compact = false }) {
   const { t } = useLang()
   return (
     <section aria-labelledby="guide-heading">
@@ -38,7 +38,7 @@ export default function ModeGuide({ mode, duration, compact = false }) {
             <span className="grid size-11 shrink-0 place-items-center rounded-full" style={{ background: color }}>
               <Icon className="size-5" aria-hidden="true" />
             </span>
-            <p className={`pt-1 leading-snug ${compact ? 'text-sm' : 'text-base'}`}>{t(key, { s: duration })}</p>
+            <p className={`pt-1 leading-snug ${compact ? 'text-sm' : 'text-base'}`}>{t(key === 'guide.team' && multiTry ? 'guide.teamMulti' : key, { s: duration })}</p>
           </motion.li>
         ))}
       </ol>
