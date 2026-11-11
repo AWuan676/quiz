@@ -82,19 +82,43 @@ function Measures({ room, remainingMs }) {
   )
 }
 
+/** Multi-try rooms: shown after a wrong answer, above the reopened pad. */
+function RetryBanner({ wrong, mode, options }) {
+  const { t, tr } = useLang()
+  const last = wrong[wrong.length - 1]
+  const label = mode === 'standard' && options ? `${ANSWER_PLATES[last]?.letter} · ${tr(options[last])}` : last
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={pop}
+      role="alert"
+      className="mx-3 mb-1 flex items-start gap-2 rounded-3xl bg-coral px-4 py-3 text-sm leading-snug font-semibold"
+    >
+      <X className="mt-0.5 size-4 shrink-0" strokeWidth={3} aria-hidden="true" />
+      <span>
+        {t('play.retry', { value: label })}
+        {wrong.length > 1 && <span className="font-medium"> {t('play.tries', { n: wrong.length })}</span>}
+      </span>
+    </motion.p>
+  )
+}
+
 export function ControllerScreen({ game, remainingMs }) {
   const { room } = game
   return (
     <div className="flex flex-1 flex-col">
       <Measures room={room} remainingMs={remainingMs} />
+      {game.retry && <RetryBanner wrong={game.retry.wrong} mode={room.mode} options={room.question?.options} />}
       {room.mode === 'standard' ? <StandardPad game={game} /> : <CluesPad game={game} />}
     </div>
   )
 }
 
 function StandardPad({ game }) {
-  const { tr } = useLang()
+  const { t, tr } = useLang()
   const options = game.room.question?.options ?? []
+  const tried = game.retry?.wrong ?? []
   return (
     <div className="mx-auto grid w-full max-w-xl flex-1 grid-cols-2 gap-3 p-3">
       {ANSWER_PLATES.map(({ letter, bg, fg, Icon }, i) => (
@@ -106,7 +130,9 @@ function StandardPad({ game }) {
           whileTap={{ scale: 0.92 }}
           transition={{ ...pop, delay: i * 0.05 }}
           onClick={() => game.submitAnswer(i)}
-          className="flex min-h-36 flex-col items-start justify-between rounded-[2.25rem] p-5 text-left"
+          disabled={tried.includes(i)}
+          aria-label={tried.includes(i) ? t('play.triedOption', { l: letter }) : undefined}
+          className="flex min-h-36 flex-col items-start justify-between rounded-[2.25rem] p-5 text-left disabled:opacity-25 disabled:line-through"
           style={{ background: bg, color: fg }}
         >
           <span className="flex w-full items-center justify-between">
@@ -180,7 +206,7 @@ function CluesPad({ game }) {
         enterKeyHint="send"
         className="mt-2 h-16 rounded-full bg-paper px-6 text-xl font-semibold ring-2 ring-inset ring-ink/15 outline-none placeholder:text-base placeholder:font-medium placeholder:text-ink-2/80 focus:ring-ink"
       />
-      <p className="mt-2 px-4 text-xs text-ink-2">{t('play.oneShot')}</p>
+      <p className="mt-2 px-4 text-xs text-ink-2">{t(game.rawRoom?.meta?.multiTry ? 'play.multiShot' : 'play.oneShot')}</p>
       <div className="mt-auto pt-6">
         <Button type="submit" size="xl" chip className="w-full" disabled={!value.trim()}>
           {t('play.lockIn')}

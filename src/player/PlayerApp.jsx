@@ -108,8 +108,11 @@ function useGameView(initialCode) {
 
   const result = room.results?.[q]?.[me.teamId]
   const remainingMs = Math.max(0, view.room.endsAt - now)
-  if (result) return { ...view, screenKey: `fb-${q}`, screen: <FeedbackScreen game={view} result={result} /> }
+  // Multi-try rooms: a wrong answer comes back as { retry: true, wrong: [...] } and the pad reopens.
+  const retry = result?.retry ? { wrong: Object.values(result.wrong || {}) } : null
+  if (result && !result.retry) return { ...view, screenKey: `fb-${q}`, screen: <FeedbackScreen game={view} result={result} /> }
   if (answer) return { ...view, screenKey: `fb-${q}`, screen: <FeedbackScreen game={view} result={null} /> }
   if (remainingMs <= 0) return { ...view, screenKey: `late-${q}`, screen: <TimeUpScreen /> }
-  return { ...view, screenKey: `q-${q}`, screen: <ControllerScreen game={view} remainingMs={remainingMs} /> }
+  const pad = { ...view, retry }
+  return { ...pad, screenKey: `q-${q}-${retry?.wrong.length ?? 0}`, screen: <ControllerScreen game={pad} remainingMs={remainingMs} /> }
 }

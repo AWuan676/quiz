@@ -128,7 +128,7 @@ export default function LobbyScreen({ game }) {
       <ErrorLine code={game.error === 'teamFull' ? 'teamFull' : null} />
 
       <div className="mt-10 border-t-2 border-ink pt-6">
-        <ModeGuide mode={room.meta.mode} duration={room.meta.duration} compact />
+        <ModeGuide mode={room.meta.mode} duration={room.meta.duration} multiTry={room.meta.multiTry} compact />
         <p className="mt-6 text-sm text-ink-2">{t('wait.teams', { n: groups.length })}</p>
       </div>
 
