@@ -171,6 +171,8 @@ export function useHostRoom(code) {
           state: { phase: 'question', qIndex: nextIndex, startedAt: serverTimestamp(), hintsRevealed: 0 },
         })
       },
+      // Skip the remaining questions and go straight to the leaderboard.
+      endEarly: () => write({ 'state/phase': 'final' }),
       restart: () =>
         write({
           teams: null,

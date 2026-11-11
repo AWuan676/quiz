@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { Check, Eye, X } from 'lucide-react'
+import { Check, Eye, Flag, Pause, Play, X } from 'lucide-react'
 import { Button, Label } from '../components/ui.jsx'
 import TimeTrack from '../components/TimeTrack.jsx'
 import RollingNumber from '../components/RollingNumber.jsx'
@@ -10,6 +10,9 @@ import { rankedTeams, useServerNow } from '../lib/room.js'
 import { hostDb } from '../lib/firebase.js'
 import { pop } from '../lib/motion.js'
 import { useLang } from '../lib/i18n.jsx'
+
+/** How long the answer stays up before the next question starts on its own. */
+const REVEAL_MS = 5000
 
 function Kbd({ children }) {
   return <kbd className="rounded-md bg-ink/10 px-1.5 py-0.5 font-sans text-xs font-semibold">{children}</kbd>
@@ -178,7 +181,8 @@ export default function Game({ game }) {
   const done = (id) => Boolean(answers[id]) || Boolean(results[id] && !results[id].retry)
   const teamsArr = rankedTeams(room.teams)
   const isQuestion = state.phase === 'question'
-  const now = useServerNow(hostDb, isQuestion, 100)
+  const isReveal = state.phase === 'reveal'
+  const now = useServerNow(hostDb, isQuestion || isReveal, 100)
   const totalMs = duration * 1000
   const endsAt = state.startedAt + totalMs
   const remainingMs = isQuestion ? Math.max(0, endsAt - now) : 0
@@ -186,6 +190,31 @@ export default function Game({ game }) {
   const timeUp = isQuestion && remainingMs <= 0
   const allAnswered = isQuestion && teamsArr.length > 0 && teamsArr.every((tm) => done(tm.id))
   const isLast = state.qIndex + 1 >= total
+
+  // Auto flow: everyone done or time up -> show the answer; REVEAL_MS later -> next question.
+  const [revealStart, setRevealStart] = useState(null)
+  const [paused, setPaused] = useState(false)
+  const autoRef = useRef({ shown: -1, next: -1 })
+  useEffect(() => {
+    setRevealStart(isReveal ? Date.now() : null)
+    if (!isReveal) setPaused(false)
+  }, [isReveal, state.qIndex])
+  const revealLeft = revealStart ? Math.max(0, REVEAL_MS - (Date.now() - revealStart)) : REVEAL_MS
+  useEffect(() => {
+    if (isQuestion && (timeUp || allAnswered) && autoRef.current.shown !== state.qIndex) {
+      autoRef.current.shown = state.qIndex
+      actions.showAnswer()
+    }
+  })
+  useEffect(() => {
+    if (isReveal && revealStart && !paused && revealLeft <= 0 && autoRef.current.next !== state.qIndex) {
+      autoRef.current.next = state.qIndex
+      actions.next()
+    }
+  })
+  const endEarly = () => {
+    if (window.confirm(t('game.endConfirm'))) actions.endEarly()
+  }
 
 
   // Keyboard: A / Space = show answer, N / → = next
@@ -283,7 +312,27 @@ export default function Game({ game }) {
                 </Button>
               </motion.div>
             )}
-            {state.phase === 'reveal' && (
+            {isReveal && (
+              <div className="flex items-center gap-3">
+                <span className="relative h-2 w-28 overflow-hidden rounded-full bg-water-2" aria-hidden="true">
+                  <span className="absolute inset-y-0 left-0 rounded-full bg-land" style={{ width: `${paused ? 100 : (revealLeft / REVEAL_MS) * 100}%` }} />
+                </span>
+                <span className="text-sm font-semibold tabular" role="timer">
+                  {paused ? t('game.autoPaused') : t(isLast ? 'game.autoFinal' : 'game.autoNext', { s: Math.ceil(revealLeft / 1000) })}
+                </span>
+                <Button variant="outline" size="md" onClick={() => setPaused((p) => !p)}>
+                  {paused ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
+                  {paused ? t('game.resumeAuto') : t('game.pauseAuto')}
+                </Button>
+              </div>
+            )}
+            {(isQuestion || isReveal) && !isLast && (
+              <Button variant="outline" size="md" onClick={endEarly}>
+                <Flag className="size-4" aria-hidden="true" />
+                {t('game.endEarly')}
+              </Button>
+            )}
+            {isReveal && (
               <Button size="lg" chip onClick={actions.next}>
                 {isLast ? t('game.toLeaderboard') : t('game.nextQuestion')}
                 <Kbd>N</Kbd>
