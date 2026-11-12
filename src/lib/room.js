@@ -145,3 +145,6 @@ export function rankedTeams(teams) {
 export function generateRoomCode() {
   return String(Math.floor(100000 + Math.random() * 900000))
 }
+
+/** Length of the "3, 2, 1" before question 1. */
+export const COUNTDOWN_MS = 3000
