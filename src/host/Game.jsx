@@ -177,8 +177,9 @@ export default function Game({ game }) {
   const { mode, duration, total } = meta
   const answers = room.answers?.[state.qIndex] || {}
   const results = room.results?.[state.qIndex] || {}
-  // In multi-try rooms a team is done once it is right (or out of time), not after its first guess.
-  const done = (id) => Boolean(answers[id]) || Boolean(results[id] && !results[id].retry)
+  // A team is done once its answer has been scored as final. Counting a raw, unscored answer would
+  // reveal before the referee scores it (0 points) and end multi-try rooms after one wrong guess.
+  const done = (id) => Boolean(results[id] && !results[id].retry)
   const teamsArr = rankedTeams(room.teams)
   const isQuestion = state.phase === 'question'
   const isReveal = state.phase === 'reveal'

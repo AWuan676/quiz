@@ -1,11 +1,30 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { LoaderCircle, LogOut } from 'lucide-react'
-import { useHostRoom } from './useHostRoom.js'
+import { useEffect, useRef } from 'react'
+import { COUNTDOWN_MS, useHostRoom } from './useHostRoom.js'
+import Countdown from '../components/Countdown.jsx'
+import { useServerNow } from '../lib/room.js'
+import { hostDb } from '../lib/firebase.js'
 import Lobby from './Lobby.jsx'
 import Game from './Game.jsx'
 import Final from './Final.jsx'
 import { Brand, Button, LangToggle } from '../components/ui.jsx'
 import { useLang } from '../lib/i18n.jsx'
+
+/** Projector "3, 2, 1"; when it runs out the host opens question 1 for everyone. */
+function HostCountdown({ game }) {
+  const { meta, state, actions } = game
+  const now = useServerNow(hostDb, true, 100)
+  const begun = useRef(false)
+  const leftMs = COUNTDOWN_MS - (now - state.startedAt)
+  useEffect(() => {
+    if (leftMs <= 0 && !begun.current) {
+      begun.current = true
+      actions.begin()
+    }
+  })
+  return <Countdown leftMs={leftMs} mode={meta.mode} total={meta.total} big />
+}
 
 export default function RoomScreen({ code, user, navigate }) {
   const { t } = useLang()
@@ -38,6 +57,8 @@ export default function RoomScreen({ code, user, navigate }) {
     body = <p className="px-10 py-10 text-lg">{t('room.notOwner')}</p>
   } else if (state.phase === 'lobby') {
     body = <Lobby game={game} />
+  } else if (state.phase === 'countdown') {
+    body = <HostCountdown game={game} />
   } else if (state.phase === 'final') {
     body = <Final game={game} />
   } else {

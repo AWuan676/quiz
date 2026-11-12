@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { get, remove, runTransaction, serverTimestamp, update } from 'firebase/database'
 import { hostDb } from '../lib/firebase.js'
 import { loadQuiz, acceptedAnswers } from '../lib/quizStore.js'
-import { dealHints, generateRoomCode, groupPlayers, hashKit, orderedMembers, roomPath, roomRef, useRoom } from '../lib/room.js'
+import { COUNTDOWN_MS, dealHints, generateRoomCode, groupPlayers, hashKit, orderedMembers, roomPath, roomRef, useRoom } from '../lib/room.js'
 import { isAnswerMatch, pointsAt } from '../lib/scoring.js'
 
 /** Creates a room with a fresh, unused 6-digit code and returns the code. */
@@ -46,6 +46,25 @@ function hintsPatch(teams, players, q, qIndex) {
   return patch
 }
 
+/** Score one team's answer: { 'results/q/team': {...} } (and, for a multi-try miss, clear the answer). */
+function scorePatch(meta, state, q, teamId, a, prev) {
+  const totalMs = meta.duration * 1000
+  const endsAt = state.startedAt + totalMs
+  const late = a.at > endsAt
+  const correct = !late && (meta.mode === 'clues' ? isAnswerMatch(a.value, acceptedAnswers(q)) : Number(a.value) === q.correct)
+  const wrong = prev?.wrong || []
+  if (!correct && !late && meta.multiTry) {
+    // Multi-try: record the miss and clear the answer so the team can try again.
+    return {
+      [`results/${state.qIndex}/${teamId}`]: { correct: false, retry: true, points: 0, wrong: [...wrong, a.value] },
+      [`answers/${state.qIndex}/${teamId}`]: null,
+    }
+  }
+  return { [`results/${state.qIndex}/${teamId}`]: { correct, late, points: correct ? pointsAt(endsAt - a.at, totalMs) : 0, wrong } }
+}
+
+export { COUNTDOWN_MS }
+
 /**
  * The host is the referee: it alone reads the quiz with its answers (from Firestore),
  * scores each team's first answer against the server clock, and publishes results.
@@ -72,24 +91,13 @@ export function useHostRoom(code) {
     const q = quiz.questions[state.qIndex]
     const answers = room.answers?.[state.qIndex] || {}
     const results = room.results?.[state.qIndex] || {}
-    const totalMs = meta.duration * 1000
-    const endsAt = state.startedAt + totalMs
     const patch = {}
     Object.entries(answers).forEach(([teamId, a]) => {
       const prev = results[teamId]
       const key = `${state.qIndex}:${teamId}:${a.at}`
       if ((prev && !prev.retry) || scoredRef.current.has(key) || typeof a.at !== 'number') return
       scoredRef.current.add(key)
-      const late = a.at > endsAt
-      const correct = !late && (meta.mode === 'clues' ? isAnswerMatch(a.value, acceptedAnswers(q)) : Number(a.value) === q.correct)
-      const wrong = prev?.wrong || []
-      if (!correct && !late && meta.multiTry) {
-        // Multi-try: record the miss and clear the answer so the team can try again.
-        patch[`results/${state.qIndex}/${teamId}`] = { correct: false, retry: true, points: 0, wrong: [...wrong, a.value] }
-        patch[`answers/${state.qIndex}/${teamId}`] = null
-      } else {
-        patch[`results/${state.qIndex}/${teamId}`] = { correct, late, points: correct ? pointsAt(endsAt - a.at, totalMs) : 0, wrong }
-      }
+      Object.assign(patch, scorePatch(meta, state, q, teamId, a, prev))
     })
     if (Object.keys(patch).length) write(patch)
   }, [room, quiz, state, meta, write])
@@ -109,7 +117,7 @@ export function useHostRoom(code) {
       }
       patch[`teams/${teamId}`] = team
       // A late team still needs its clues for the question in play.
-      if (meta?.mode === 'clues' && state.phase === 'question' && quiz) {
+      if (meta?.mode === 'clues' && (state.phase === 'question' || state.phase === 'countdown') && quiz) {
         patch = { ...patch, ...hintsPatch({ [teamId]: team }, room.players, quiz.questions[state.qIndex], state.qIndex) }
       }
     })
@@ -137,9 +145,11 @@ export function useHostRoom(code) {
           reveal: null,
           hints: null, // cleared here, dealt in a second write: one update cannot null a parent and set its children
           question: publicQuestion(meta.mode, q0),
-          state: { phase: 'question', qIndex: 0, startedAt: serverTimestamp(), hintsRevealed: 0 },
+          // "3, 2, 1" first; startedAt marks the countdown's start until begin() opens question 1.
+          state: { phase: 'countdown', qIndex: 0, startedAt: serverTimestamp(), hintsRevealed: 0 },
         }).then(() => (meta.mode === 'clues' ? write(hintsPatch(teams, room.players, q0, 0)) : undefined))
       },
+      begin: () => write({ 'state/phase': 'question', 'state/startedAt': serverTimestamp() }),
       showAnswer: () => {
         const results = room.results?.[state.qIndex] || {}
         const answers = room.answers?.[state.qIndex] || {}
@@ -150,7 +160,14 @@ export function useHostRoom(code) {
           reveal: meta.mode === 'clues' ? { text: question.answer } : { index: question.correct },
         }
         Object.entries(room.teams || {}).forEach(([teamId, t]) => {
-          const r = results[teamId]
+          let r = results[teamId]
+          const a = answers[teamId]
+          // An answer that landed a moment before the reveal may not be scored yet: score it now, as final.
+          if (a && typeof a.at === 'number' && (!r || r.retry)) {
+            const scored = scorePatch({ ...meta, multiTry: false }, state, question, teamId, a, r)
+            r = scored[`results/${state.qIndex}/${teamId}`]
+            Object.assign(patch, scored)
+          }
           const gain = r?.correct ? r.points : 0
           patch[`teams/${teamId}/score`] = (t.score || 0) + gain
           patch[`teams/${teamId}/lastGain`] = gain
