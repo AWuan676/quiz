@@ -7,6 +7,7 @@
  */
 export const firebaseConfig = {
   apiKey: 'AIzaSyC91H5ZZrAF6QnrPh0T--ftOnNysHssbGE',
+  // web.app instead of firebaseapp.com: some Vietnamese networks reset connections to *.firebaseapp.com.
   authDomain: 'quiz-map-remake.web.app',
   databaseURL: 'https://quiz-map-remake-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'quiz-map-remake',
