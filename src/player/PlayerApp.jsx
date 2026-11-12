@@ -6,8 +6,9 @@ import LobbyScreen from './LobbyScreen.jsx'
 import { ControllerScreen, FeedbackScreen, RevealScreen, FinalScreen, TimeUpScreen } from './PlayScreens.jsx'
 import { LangToggle, Brand } from '../components/ui.jsx'
 import Avatar from '../components/Avatar.jsx'
+import Countdown from '../components/Countdown.jsx'
 import { playerDb } from '../lib/firebase.js'
-import { rankedTeams, useServerNow } from '../lib/room.js'
+import { COUNTDOWN_MS, rankedTeams, useServerNow } from '../lib/room.js'
 import { useLang } from '../lib/i18n.jsx'
 
 export default function PlayerApp({ initialCode, navigate }) {
@@ -70,7 +71,7 @@ function useGameView(initialCode) {
   const g = { ...raw, player: raw.me, rawRoom: raw.room }
   const { step, room, me } = raw
   const state = room?.state
-  const live = step === 'in' && state?.phase === 'question'
+  const live = step === 'in' && (state?.phase === 'question' || state?.phase === 'countdown')
   const now = useServerNow(playerDb, live, 100)
 
   if (step === 'closed') return { ...g, screenKey: 'closed', screen: <ClosedScreen onLeave={g.leaveRoom} /> }
@@ -103,6 +104,10 @@ function useGameView(initialCode) {
     myClues: raw.myHints?.q === q ? raw.myHints.items || [] : null,
   }
 
+  if (state.phase === 'countdown') {
+    const leftMs = COUNTDOWN_MS - (now - state.startedAt)
+    return { ...view, screenKey: 'countdown', screen: <Countdown leftMs={leftMs} mode={room.meta.mode} total={room.meta.total} /> }
+  }
   if (state.phase === 'final') return { ...view, screenKey: 'final', screen: <FinalScreen game={view} /> }
   if (state.phase === 'reveal') return { ...view, screenKey: `reveal-${q}`, screen: <RevealScreen game={view} /> }
 
