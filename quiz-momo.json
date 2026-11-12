@@ -1,0 +1,172 @@
+{
+  "title": "MoMo: Mô hình kinh doanh số",
+  "mode": "clues",
+  "duration": 60,
+  "questions": [
+    {
+      "category": "Một mô hình kinh doanh",
+      "hints": [
+        "Giúp MoMo cung cấp dịch vụ tài chính dù không có giấy phép ngân hàng thương mại",
+        "Ví Trả Sau, Túi Thần Tài và cho vay tiêu dùng nhanh là ví dụ tiêu biểu",
+        "Ngân hàng/Fintech tiếp cận người dùng ngay lập tức với chi phí thấp hơn nhiều",
+        "MoMo có lợi nhuận cao mà không chịu rủi ro tín dụng hay áp lực kế toán"
+      ],
+      "answer": "Tài chính nhúng",
+      "accept": "Embedded Finance, Embedded, Tai chinh nhung"
+    },
+    {
+      "category": "Một hạ tầng thanh toán",
+      "hints": [
+        "Hạ tầng chuyển mạch được nhắc tới trong bối cảnh pháp lý và hạ tầng FinTech Việt Nam",
+        "Cùng Mobile Banking tạo sức ép cạnh tranh thay thế lớn lên MoMo",
+        "Biến chuyển tiền và thanh toán cơ bản thành tiện ích miễn phí",
+        "Buộc MoMo dịch chuyển từ “Transaction Fee” sang “Platform Fee”"
+      ],
+      "answer": "VietQR",
+      "accept": "Viet QR"
+    },
+    {
+      "category": "Một chiến lược giữ chân khách hàng",
+      "hints": [
+        "Nằm trong khối Quan hệ khách hàng của Digital BMC, bên cạnh trợ lý AI",
+        "Lắc Xì là một ví dụ",
+        "Học viện MoMo cũng thuộc chiến lược này",
+        "Biến trải nghiệm tài chính thành một trò chơi"
+      ],
+      "answer": "Gamification",
+      "accept": "Trò chơi hóa, Game hóa, Game hoa"
+    },
+    {
+      "category": "Một định luật",
+      "hints": [
+        "Dùng để giải thích lợi thế cạnh tranh của nền tảng đa chiều",
+        "Giá trị mạng lưới tăng theo cấp số nhân khi số người dùng kết nối tăng",
+        "Gắn với hiệu ứng mạng gián tiếp giữa người dùng và nhà bán hàng",
+        "Mang tên một kỹ sư người Mỹ, đồng sáng chế ra Ethernet"
+      ],
+      "answer": "Định luật Metcalfe",
+      "accept": "Metcalfe, Metcalfe's law, Dinh luat Metcalfe"
+    },
+    {
+      "category": "Một hiệu ứng",
+      "hints": [
+        "Hệ sinh thái siêu ứng dụng của MoMo tạo ra hiệu ứng này",
+        "Người dùng sợ mất quyền lợi tích lũy nếu rời bỏ nền tảng",
+        "Chi phí phi tài chính lớn khiến người dùng khó đổi sang ứng dụng khác",
+        "Tên tiếng Anh có nghĩa là “khóa chân” người dùng"
+      ],
+      "answer": "Lock-in effect",
+      "accept": "Lock-in, Lock in, Hiệu ứng khóa chân, Chi phí chuyển đổi, Switching cost"
+    },
+    {
+      "category": "Một cơ chế dựa trên dữ liệu",
+      "hints": [
+        "Dùng AI và học máy trên dữ liệu hành vi số của người dùng",
+        "Đánh giá uy tín dựa trên hành vi chi tiêu thực tế và tính ổn định thanh toán",
+        "Giúp người chưa có lịch sử ngân hàng tiếp cận dịch vụ tài chính chính thức",
+        "Giúp tự động phê duyệt hạn mức vay và giảm nợ xấu"
+      ],
+      "answer": "Chấm điểm tín dụng thay thế",
+      "accept": "Chấm điểm tín dụng, Credit scoring, Alternative credit scoring, Cham diem tin dung"
+    },
+    {
+      "category": "Một sản phẩm nền tảng",
+      "hints": [
+        "Doanh nghiệp trả phí vận hành gian hàng trên đó",
+        "Là một trong ba trụ cột của chiến lược “Platform Fee”",
+        "Cùng với mã QR tạo nên hạ tầng thanh toán đa kênh cho doanh nghiệp",
+        "Ứng dụng nhỏ chạy ngay bên trong siêu ứng dụng"
+      ],
+      "answer": "Mini-App",
+      "accept": "Mini App, MiniApp, Ứng dụng mini"
+    },
+    {
+      "category": "Một khung phân tích",
+      "hints": [
+        "Gồm 9 yếu tố",
+        "Phân khúc khách hàng, Đề xuất giá trị và Dòng doanh thu là các khối của nó",
+        "Là trọng tâm của Chương 2 trong bài phân tích",
+        "Phiên bản số của Business Model Canvas"
+      ],
+      "answer": "Digital BMC",
+      "accept": "BMC, Business Model Canvas, Digital Business Model Canvas"
+    },
+    {
+      "category": "Một doanh nghiệp đối tác",
+      "hints": [
+        "Đối tác gắn với giai đoạn khởi tạo 2007–2013 của MoMo",
+        "MoMo khởi đầu bằng dịch vụ nạp tiền điện thoại qua SIM cùng đối tác này",
+        "Là một nhà mạng viễn thông Việt Nam",
+        "Cùng Viettel và Mobifone hợp tác với MoMo về nạp tiền và OTP"
+      ],
+      "answer": "Vinaphone",
+      "accept": "Vina phone, Vina"
+    },
+    {
+      "category": "Một nguồn doanh thu (viết tắt)",
+      "hints": [
+        "Đứng đầu danh sách 5 dòng doanh thu của MoMo",
+        "Được thu theo % trên mỗi đơn hàng",
+        "Do các đối tác chấp nhận thanh toán như F&B, TMĐT, siêu thị chi trả",
+        "Viết tắt của Merchant Discount Rate"
+      ],
+      "answer": "MDR",
+      "accept": "Merchant Discount Rate, Phí chiết khấu giao dịch, Phí chiết khấu"
+    },
+    {
+      "category": "Một loại chi phí (viết tắt)",
+      "hints": [
+        "Hoàn tiền (cashback) và voucher khuyến mãi được tính vào chi phí này",
+        "MoMo chấp nhận lỗ để chi mạnh cho khoản này trong giai đoạn mở rộng",
+        "Sau khi đạt hơn 31 triệu người dùng, MoMo giảm trợ cấp để tối ưu khoản này",
+        "Viết tắt của Customer Acquisition Cost"
+      ],
+      "answer": "CAC",
+      "accept": "Customer Acquisition Cost, Chi phí thu hút khách hàng"
+    },
+    {
+      "category": "Một tiêu chuẩn bảo mật",
+      "hints": [
+        "Được nêu trong phần thành tựu nổi bật của MoMo",
+        "MoMo đạt cấp độ cao nhất của tiêu chuẩn này: Level 1",
+        "Liên quan đến bảo mật dữ liệu thẻ thanh toán",
+        "Viết tắt của Payment Card Industry Data Security Standard"
+      ],
+      "answer": "PCI-DSS",
+      "accept": "PCI DSS, PCIDSS, PCI"
+    },
+    {
+      "category": "Một văn bản pháp lý",
+      "hints": [
+        "Được ban hành năm 2023",
+        "Đòi hỏi MoMo đầu tư lớn cho hạ tầng quản trị dữ liệu và quy trình",
+        "Quy định về bảo vệ dữ liệu cá nhân",
+        "Là một Nghị định có số hiệu bắt đầu bằng số 13"
+      ],
+      "answer": "Nghị định 13",
+      "accept": "13/2023/NĐ-CP, 13/2023, Nghị định 13/2023, NĐ 13, ND13, Nghi dinh 13"
+    },
+    {
+      "category": "Một phương thức xác thực",
+      "hints": [
+        "Quyết định 2345/QĐ-NHNN yêu cầu áp dụng cho giao dịch lớn",
+        "Đặt ra thách thức về tối ưu trải nghiệm người dùng (UX/UI)",
+        "Được tích hợp với dữ liệu căn cước công dân gắn chip",
+        "Dùng khuôn mặt hoặc vân tay để xác minh danh tính"
+      ],
+      "answer": "Sinh trắc học",
+      "accept": "Xác thực sinh trắc học, Biometric, Biometrics, Sinh trac hoc"
+    },
+    {
+      "category": "Một giải pháp chiến lược đề xuất",
+      "hints": [
+        "Hướng tới doanh nghiệp vừa, nhỏ và tiểu thương",
+        "Gồm quản lý doanh thu, tồn kho, khách hàng thân thiết và đa kênh thanh toán",
+        "Được mô tả như một bộ giải pháp SaaS thu nhỏ",
+        "Thuộc chiến lược chuyển dịch sang thị trường B2B ở Chương 5"
+      ],
+      "answer": "MoMo Merchant",
+      "accept": "Merchant, MoMo Merchant Ecosystem, Momo Merchant"
+    }
+  ]
+}

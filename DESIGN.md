@@ -1,361 +1,276 @@
 ---
-name: Matchday Quiz
-description: A real-time classroom quiz played on a stadium scoreboard, where the shot clock drains points live in amber LED.
+name: Quizmap
+description: A bilingual real-time classroom quiz drawn as a park guide map, with flat colour lands on cream water and every control a capsule.
 colors:
-  concrete: "#e9edf3"
-  concrete-2: "#d9e0ea"
-  paper: "#ffffff"
-  ink: "#12141c"
-  ink-2: "#464d5f"
-  board: "#15171f"
-  board-2: "#22253a"
-  board-3: "#30344b"
-  board-text: "#c9cede"
-  led: "#ffb400"
-  led-hot: "#ff4a2e"
-  pitch: "#0e9f4f"
-  pitch-2: "#0b8a43"
-  chalk: "#f4fff7"
-  kit-red: "#e5243b"
-  kit-blue: "#1d5bff"
-  kit-yellow: "#ffc20e"
-  kit-green: "#0fa24a"
-  kit-orange: "#ff6a13"
-  kit-purple: "#7b3fe4"
-  kit-cyan: "#00b3d6"
-  kit-pink: "#ff3d8b"
+  water: "#f5f1e4"
+  water-2: "#ebe5d2"
+  paper: "#fffdf6"
+  ink: "#2c2e2a"
+  ink-2: "#5a5c55"
+  land: "#8ed462"
+  land-2: "#74bd47"
+  sun: "#f5e211"
+  coral: "#ff705d"
+  pond: "#2ba0ff"
+  lilac: "#ebc1ff"
+  apricot: "#ffb46b"
+  mint: "#7ed9cb"
+  rose: "#ffa3c7"
 typography:
   display:
-    fontFamily: "Big Shoulders Display, Barlow, system-ui, sans-serif"
-    fontSize: "clamp(3rem, 7vw, 6rem)"
-    fontWeight: 900
-    lineHeight: 0.88
-    letterSpacing: "normal"
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
+    fontSize: "clamp(3rem, 7.5vw, 6rem)"
+    fontWeight: 800
+    lineHeight: 0.95
+    letterSpacing: "-0.04em"
   headline:
-    fontFamily: "Big Shoulders Display, Barlow, system-ui, sans-serif"
-    fontSize: "1.875rem"
-    fontWeight: 900
-    lineHeight: 1.2
-    letterSpacing: "normal"
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
+    fontSize: "clamp(2rem, 3.8vw, 3.5rem)"
+    fontWeight: 800
+    lineHeight: 0.95
+    letterSpacing: "-0.04em"
   title:
-    fontFamily: "Big Shoulders Display, Barlow, system-ui, sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 800
-    lineHeight: 1.25
-    letterSpacing: "normal"
-  prompt:
-    fontFamily: "Barlow, system-ui, sans-serif"
-    fontSize: "clamp(2rem, 3.8vw, 3.75rem)"
-    fontWeight: 700
-    lineHeight: 1.08
-  body:
-    fontFamily: "Barlow, system-ui, sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 500
-    lineHeight: 1.375
-  label:
-    fontFamily: "Big Shoulders Display, Barlow, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 800
-    lineHeight: 1.43
-    letterSpacing: "0.18em"
-  ticker:
-    fontFamily: "Big Shoulders Display, Barlow, system-ui, sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 800
-    lineHeight: 1.56
-    letterSpacing: "0.12em"
-  button:
-    fontFamily: "Big Shoulders Display, Barlow, system-ui, sans-serif"
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
     fontSize: "1.5rem"
     fontWeight: 800
-    lineHeight: 1.33
-    letterSpacing: "0.025em"
+    lineHeight: 0.95
+    letterSpacing: "-0.04em"
+  body:
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 500
+    lineHeight: 1.625
+  label:
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 600
+    letterSpacing: "0.12em"
+  button:
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 600
+    letterSpacing: "-0.01em"
 rounded:
-  md: "6px"
-  lg: "8px"
-  xl: "12px"
-  2xl: "16px"
-  3xl: "24px"
-  board: "28px"
+  key: "16px"
+  plate: "36px"
+  panel: "40px"
   full: "9999px"
 spacing:
-  "1": "4px"
-  "2": "8px"
-  "3": "12px"
-  "4": "16px"
-  "5": "20px"
-  "6": "24px"
-  "8": "32px"
-  "10": "40px"
+  gutter-sm: "20px"
+  gutter: "40px"
+  cell: "8px"
+  stack: "24px"
+  content-max: "1500px"
 components:
-  button-led:
-    backgroundColor: "{colors.led}"
+  button-land:
+    backgroundColor: "{colors.land}"
     textColor: "{colors.ink}"
     typography: "{typography.button}"
-    rounded: "{rounded.2xl}"
+    rounded: "{rounded.full}"
     height: "64px"
     padding: "0 28px"
-  button-led-xl:
-    backgroundColor: "{colors.led}"
+  button-land-hover:
+    backgroundColor: "{colors.land-2}"
+  button-ink:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.water}"
+    typography: "{typography.button}"
+    rounded: "{rounded.full}"
+    height: "64px"
+    padding: "0 28px"
+  button-outline:
     textColor: "{colors.ink}"
     typography: "{typography.button}"
-    rounded: "{rounded.2xl}"
-    height: "80px"
-    padding: "0 40px"
-  button-pitch:
-    backgroundColor: "{colors.pitch}"
-    textColor: "{colors.paper}"
-    typography: "{typography.button}"
-    rounded: "{rounded.2xl}"
+    rounded: "{rounded.full}"
     height: "64px"
     padding: "0 28px"
-  button-board:
-    backgroundColor: "{colors.board-2}"
-    textColor: "{colors.paper}"
-    typography: "{typography.button}"
-    rounded: "{rounded.2xl}"
-    height: "64px"
-    padding: "0 28px"
-  button-light:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button}"
-    rounded: "{rounded.xl}"
-    height: "48px"
-    padding: "0 20px"
-  board-housing:
-    backgroundColor: "{colors.board}"
-    textColor: "{colors.board-text}"
-    rounded: "{rounded.board}"
-    padding: "24px"
-  board-cell:
-    backgroundColor: "{colors.board-2}"
-    textColor: "{colors.board-text}"
-    rounded: "{rounded.2xl}"
-    padding: "24px"
+  button-arrow-chip:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.water}"
+    rounded: "{rounded.full}"
+    size: "48px"
   code-cell:
-    backgroundColor: "{colors.board-2}"
-    textColor: "{colors.led}"
-    rounded: "{rounded.xl}"
-  text-input:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.2xl}"
+    typography: "{typography.display}"
+    rounded: "{rounded.key}"
+  text-field:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.full}"
     height: "64px"
-    padding: "0 20px"
-  ticker:
-    backgroundColor: "{colors.board}"
-    textColor: "{colors.led}"
-    typography: "{typography.ticker}"
-    padding: "8px 0"
-  status-pill:
-    backgroundColor: "{colors.board}"
-    textColor: "{colors.led}"
+    padding: "0 24px"
+  info-capsule:
+    backgroundColor: "{colors.sun}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.full}"
-    padding: "8px 16px"
-  status-pill-alert:
-    backgroundColor: "{colors.led-hot}"
-    textColor: "{colors.paper}"
+    padding: "6px 16px"
+  time-track:
+    backgroundColor: "{colors.water-2}"
     rounded: "{rounded.full}"
-    padding: "8px 16px"
-  answer-plate-a:
-    backgroundColor: "{colors.kit-red}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.2xl}"
-    padding: "20px 24px"
-  answer-plate-b:
-    backgroundColor: "{colors.kit-blue}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.2xl}"
-    padding: "20px 24px"
-  answer-plate-c:
-    backgroundColor: "{colors.kit-yellow}"
+    height: "20px"
+  answer-plate:
     textColor: "{colors.ink}"
-    rounded: "{rounded.2xl}"
-    padding: "20px 24px"
-  answer-plate-d:
-    backgroundColor: "{colors.kit-green}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.2xl}"
-    padding: "20px 24px"
-  hint-card:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.2xl}"
-    padding: "16px 24px 16px 16px"
-  gate-ticket:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
-    padding: "28px 32px"
+    rounded: "{rounded.plate}"
+    padding: "20px"
 ---
 
-# Design System: Matchday Quiz
+# Design System: Quizmap
 
 ## Overview
 
-**Creative North Star: "The Matchday Scoreboard"**
+**Creative North Star: "The Park Guide Map"**
 
-Every question is a match period played in front of the whole room. The ground is bright: cool concrete-white for the host's working screens and a striped pitch green, with chalk field markings, behind the moments of arrival (landing, a player's waiting screen). On top of that ground stands the scoreboard: a near-black housing with a faint LED lattice, holding amber digits that light, dim and drain. Teams are not avatars; they wear saturated kits with big jersey numbers and walk on as banners.
+Quizmap reads like the fold-out map handed out at a zoo or botanical garden: flat colour lands sitting on cream water, organic coastlines that swell in from the frame edge, and every control shaped as a capsule. The classroom room is the park; teams are coloured areas on it, each carrying a number; the question timer is a path that drains; the answer lands as a coloured pin. One land lobe per screen is enough. Everything else is cream, ink, and capsules.
 
-The system is loud by design and sized for the back row of a lecture hall. Signage is Big Shoulders Display, condensed and uppercase in 800 and 900 weights; anything meant to be read as a sentence (question prompts, clues, help text) is Barlow. Density is low on the projector and thumb-sized on the phone. State never arrives as toast chrome: it prints on the ticker strip or a status pill on the board.
+The system is minimal by commitment. There is one typeface, one ink, one ground, and a small set of saturated flat colours that always carry ink text. No surface is dark, nothing is gradient-filled, nothing casts a shadow. Measurements (question number, live points, seconds left) always sit on a fixed three-column tabular grid so a projector can be read from the back row and a phone can be read at arm's length. Motion is one grammar: a short spring that overshoots and settles.
 
-Everything that moves uses one grammar: a quick spring (about 0.4s) that overshoots and settles. Banners walk on with it, cells pop with it, rankings reshuffle with it. The only long-running motions are ambient: the ticker crawl, the code-cell cursor blink and waiting dots.
+It deliberately refuses the dark scoreboard panel and the purple game-show field.
 
 **Key Characteristics:**
-- Dark scoreboard housing on a bright concrete or pitch ground.
-- Amber LED as light: seven-segment digits, a draining shot clock, glow instead of shadow.
-- Eight saturated team kits; answer colours always paired with a shape.
-- Condensed uppercase signage over a plain, readable Barlow body.
-- One overshoot spring for all state changes; state prints on the ticker.
+- Cream water ground (never white, never dark) with ink text throughout.
+- Flat colour lands and blobs, drawn as SVG coastlines; no gradients, grain, or shadows.
+- Every interactive control is a full capsule; panels use very large radii.
+- One grotesk, Be Vietnam Pro, with an 800-weight display at 0.95 leading and -0.04em tracking.
+- Numbers are tabular and arranged on a fixed measurement grid.
+- One spring for every move: ~0.4s, overshoot, settle.
 
 ## Colors
 
-A cool, bright ground; a dark housing; one amber light source with a hot-red warning; and a fixed set of eight kit colours that belong to teams and answers, never to chrome.
+A cream-and-ink map with a short run of bright, flat land colours that all carry ink text.
 
 ### Primary
-- **Scoreboard Amber** (#ffb400): the LED. Lit seven-segment digits, shot-clock cells, live scores, the main call-to-action fill, the selected state of toggles and time choices, the focus ring, text selection and the input caret. On the board it is light; on the ground it appears only as a filled object (a button, the answer-reveal plate, a checkmark disc).
-- **Hot Lamp** (#ff4a2e): the warning state of the same LED. The last fifth of the shot clock and timer, the "time up / everyone answered" status pill, an invalid code ring, and the time-up hourglass. Between amber and hot, the shot clock passes through a transitional orange (#ff8a1f) past the halfway mark.
+- **Park Lawn Green** (land): the default land. The landing-page corner lobe, the lobby's QR land, the primary capsule button, the "answered" check dot, the healthy state of the time track, and the correct-answer feedback panel. Hover deepens to **Mown Lawn** (land-2).
 
 ### Secondary
-- **Pitch Green** (#0e9f4f) and **Pitch Shadow Stripe** (#0b8a43): the playing field. Alternating 80px vertical stripes behind arrival screens, the go-forward button (join, to the leaderboard), and the translucent tip plate on the landing pitch.
-- **Chalk** (#f4fff7): field markings drawn over the pitch at 40% opacity, and light text that sits on the pitch.
+- **Map Sun Yellow** (sun): information capsules (game mode), the revealed-answer capsule in clue mode, the time track between 50% and 20%, the text selection colour, and the "open player" link capsule.
+- **Coral Enclosure** (coral): urgency. The time track in its last fifth, the "time up / all answered" status capsule, the incorrect-answer feedback panel, the invalid code-cell ring, and answer pin A.
+- **Pond Blue** (pond): the focus ring for every focusable element, a secondary corner lobe at the bottom-left of landing and waiting screens, and answer pin B.
 
-### Tertiary: Team Kits
-- **Kit Red** (#e5243b), **Kit Blue** (#1d5bff), **Kit Yellow** (#ffc20e), **Kit Green** (#0fa24a), **Kit Orange** (#ff6a13), **Kit Purple** (#7b3fe4), **Kit Cyan** (#00b3d6), **Kit Pink** (#ff3d8b): assigned to teams in join order and cycled. The first four double as answer plates A to D. Kit Green and Kit Red also fill the player's correct and incorrect feedback screens.
+### Tertiary
+- **Lilac Garden** (lilac): quiet secondary information (duration and question count capsule), the time-up panel, the footer blob on landing.
+- **Apricot**, **Mint**, **Rose** (apricot, mint, rose): team colours only, extending the kit run after land, coral, pond, sun, and lilac. Teams receive colours in join order and cycle after eight.
 
 ### Neutral
-- **Concrete** (#e9edf3): the default page ground for host and player working screens, and the frosted fixed action bar (95% with backdrop blur).
-- **Concrete Seam** (#d9e0ea): dividers, dashed ticket perforation, locked clue rows on the phone, hover fill for secondary ticket actions.
-- **Paper** (#ffffff): the gate ticket, revealed hint cards, the light button, the clue-answer input.
-- **Ink** (#12141c): primary text on the ground; text on Amber and on the light kits; the selected mode card.
-- **Slate Ink** (#464d5f): secondary text on the ground.
-- **Housing** (#15171f): the scoreboard body, the ticker, the header bar, status pills. Also the browser theme colour.
-- **Housing Panel** (#22253a) and **Housing Recess** (#30344b): the two tonal steps inside the board (cells, inner panels, rows; then chips and unlit gain badges).
-- **Board Text** (#c9cede): labels and body text on the housing.
+- **Cream Water** (water): the page ground on every screen, the sticky action bar, the round backing behind answer-pin icons, the QR card, and text on ink capsules.
+- **Shallow Water** (water-2): the empty track of the time track, locked hint bars, unrevealed hint numbers, neutral status capsules, the empty-lobby placeholder blob, scrollbar thumb.
+- **Map Paper** (paper): input surfaces only: code cells, the clue answer field, the setup preview card.
+- **Map Ink** (ink): all text, the ink capsule button, the arrow chip, the active state of the language toggle, rule lines under standings and reveal grids.
+- **Faded Ink** (ink-2): secondary text, measurement labels, fraction denominators ("/10"), rank numbers.
 
 ### Named Rules
-**The LED Is Light Rule.** Amber text and amber digits sit on the housing. On the bright ground, amber appears only as a filled object carrying ink text. Lit amber glows (a soft same-colour halo); it never casts a dark shadow.
+**The Ink-On-Colour Rule.** Every coloured surface (land, sun, coral, pond, lilac, and every team kit) carries ink (#2c2e2a) text. White text on colour does not exist in this world; the only light text is cream water on ink.
 
-**The Kit Owns Its Ink Rule.** Each kit has one fixed foreground: Yellow, Orange, Cyan and Pink take Ink (#12141c); Red, Blue, Green and Purple take white. Use kits for teams and answers only, never for interface chrome. White on Pitch Green or Kit Green is for large bold type (24px and up); smaller text on those greens takes Ink or moves onto the housing.
+**The Shape-Plus-Colour Rule.** Answer pins are never colour alone: A is a coral triangle, B a pond diamond, C a sun circle, D a land square, and each also shows its letter.
 
-**The Hot Means Running Out Rule.** Hot Lamp is spent only on time running out and on rejection (invalid code, time up). It is never decorative and never a second accent.
+**The Three-Step Track Rule.** Draining time goes land above 50%, sun from 50% to 20%, coral in the last 20%. No other colour sequence signals time.
 
 ## Typography
 
-**Display Font:** Big Shoulders Display (with Barlow, system-ui fallback), loaded at 700, 800 and 900
-**Body Font:** Barlow (with system-ui fallback), loaded at 500, 600 and 700
+**Display Font:** Be Vietnam Pro (with system-ui, sans-serif)
+**Body Font:** Be Vietnam Pro (with system-ui, sans-serif)
 
-**Character:** Big Shoulders is stadium signage, condensed and shouted in uppercase; Barlow is the plain, slightly rounded grotesque you read the question in. The pairing keeps the noise in the signage and the reading calm.
+**Character:** A single friendly grotesk with full Vietnamese diacritic support. Display text is set heavy and tight, like map titles; everything else is medium or semibold. Only the 500, 600, and 800 cuts are loaded.
 
 ### Hierarchy
-- **Display** (900, clamp(3rem, 7vw, 6rem), 0.88): screen titles on the ground (setup title, landing HOST and JOIN titles at clamp(2.75rem, 6vw, 5rem), player result words like CORRECT up to 6rem at 0.85). Always uppercase.
-- **Headline** (900, 1.875rem): section headings on the ground ("Teams", "Mode", "Time"). Uppercase.
-- **Title** (800, 1.25rem to 2.25rem): team names in standings and banners, mode names, chip text. Uppercase.
-- **Prompt** (Barlow 700, clamp(2rem, 3.8vw, 3.75rem), 1.08, balanced): the question on the projector. Clue lines use Barlow 600 at clamp(1.25rem, 2.2vw, 2.25rem). Sentence case.
-- **Body** (Barlow 500, 1.125rem, 1.375): explanations, tips, waiting text. Keep to about max-w-sm/2xl measures.
-- **Label** (800, 0.875rem, 0.18em, uppercase, Board Text): names a datum on the board: QUESTION, LIVE POINTS, TIME LEFT, ROOM CODE, STANDINGS. Scales down to 0.75rem on the phone mini-board.
-- **Ticker** (800, 1.125rem, 0.12em, uppercase, Amber on Housing): the crawling state strip.
+- **Display** (800, clamp(3rem, 7.5vw, 6rem), 0.95, -0.04em): the landing headline, the lobby room code (scaled up to clamp(5rem, 13vw, 12rem) with -0.02em), the player's final rank, feedback headlines.
+- **Headline** (800, clamp(2rem, 3.8vw, 3.5rem), 0.95, -0.04em): the projected question prompt; the revealed answer in clue mode.
+- **Title** (800, 1.5rem to 3rem, 0.95, -0.04em): section heads (Standings, Teams), measurement values (text-5xl on projector, text-2xl on phone), team names beside their blobs.
+- **Body** (500, 1.125rem, 1.625): explanatory copy at max-w-md (about 28rem); answer option text and hints switch to semibold at larger clamped sizes.
+- **Label** (600, 0.75rem, 0.12em, uppercase, faded ink): names the value directly beneath it in the measurement grid and reveal grid. Never stands alone above a heading.
+- **Button** (600, 1rem / 1.125rem / 1.5rem by size, -0.01em, uppercase): capsule button text.
 
 ### Named Rules
-**The Board Digits Rule.** Fixed scoreboard readouts (room code, clock, question index, live points, seconds left, team count, duration choices, hint numbers on the projector) are drawn with the SVG seven-segment component, skewed -6deg, unlit segments at 8% opacity. Scores that roll or count (standings, podium, totals, gained points) and digits a player is typing are set in Big Shoulders 900 with tabular numerals, in Amber. The direction asked for "never a font"; the build draws the line at readouts versus rolling or typed numbers, and that line is the rule.
+**The Tabular Measures Rule.** Every number that changes (scores, points, seconds, room code, ranks) is set with tabular figures so values do not jitter as they count.
 
-**The Signage Shouts, Reading Speaks Rule.** Big Shoulders is always uppercase at 800 or 900. Barlow is never uppercase-tracked; anything a team must read and understand in one pass is Barlow in sentence case.
+**The One Family Rule.** Hierarchy comes from weight (800 vs 500/600) and size, never from a second typeface.
 
 ## Layout
 
-Host screens are built for a projector: a full-bleed scoreboard strip or ticker at the top, content in a container up to 1600px wide with 16px side padding (32px from 640px), and a fixed bottom action bar on frosted concrete, with 128px bottom padding on the content so nothing hides behind it. The game screen splits into a stage and a 400px standings column from 1024px; the lobby puts the board and the 380px gate ticket side by side from 1024px. Landing and setup use a 1152px (max-w-6xl) container.
+Content sits in a centred column capped at 1500px, with 20px side gutters on phones and 40px from the `sm` breakpoint (640px). Host screens split at `lg` (1024px): the landing uses a 1.15fr / 1fr two-column grid; the host game uses a fluid stage beside a fixed 360px standings column. Player screens are single-column at max-w-md or max-w-xl.
 
-Player screens are a single phone column (max-w-xl for the controller pads, max-w-md for results), with the mini-board pinned on top and the primary action anchored at the bottom with `mt-auto`.
+The measurement grid is a fixed three-column row (question number left, live points centred, seconds right, each a label over a tabular value) with the time track directly under it. It appears identically on the projector and the phone, only scaled.
 
-Spacing follows Tailwind's 4px step. Inside the board, gaps are tight (8 to 12px) like hardware; between sections on the ground, gaps open to 48px. The landing board splits HOST | VS | JOIN as a three-column grid from 768px and stacks JOIN first on mobile.
+Host screens end in a sticky bottom action bar on cream water, separated by a 2px ink/10 top rule, with status on the left and capsule buttons on the right; content carries bottom padding (pb-36) to clear it. Corner lobes are absolutely positioned, bleed past the frame (negative offsets in vw), and sit behind content (`z-10` content over them). On phones the landing lobe grows to 115vw and shifts further off-frame; the secondary pond lobe is hidden below `md`.
+
+Spacing is Tailwind's 4px scale; common steps are 8px (code-cell and pin gaps of 8 to 12px), 24px (stack between heading and content), 40 to 48px (between major regions).
 
 ## Elevation & Depth
 
-Depth is mostly tonal. Inside the scoreboard, layers step from Housing to Housing Panel to Housing Recess, with a 6px dot lattice (white at 5%) laid over panels to read as an LED matrix. Light, not shadow, is the scoreboard's depth cue: lit segments carry a 6px same-colour drop-shadow glow, shot-clock cells a 10px glow, typed code digits a 14px amber text glow.
-
-Objects that physically stand on the ground (the scoreboard itself, the gate ticket, team banners, the revealed answer plate, the selected mode card) cast soft, negatively spread drop shadows tinted from Ink.
-
-### Shadow Vocabulary
-- **Board drop** (`box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55)`): the landing scoreboard standing on the pitch.
-- **Ticket drop** (`box-shadow: 0 24px 48px -20px rgb(18 20 28 / 0.45)`): the gate ticket and other paper objects lifted off the ground.
-- **Banner drop** (`box-shadow: 0 10px 24px -12px rgb(18 20 28 / 0.5)`): team banners in the lobby; hint cards use a lighter `0 8px 20px -12px rgb(18 20 28 / 0.35)`.
-- **Amber bloom** (`box-shadow: 0 14px 30px -12px rgb(255 180 0 / 0.8)`): the revealed answer plate and the primary amber button (`0 14px 24px -8px rgb(255 180 0 / 0.6)`).
-- **LED glow** (`filter: drop-shadow(0 0 6px currentColor)`): lit seven-segment strokes.
+The world is completely flat. There are no box-shadows, no gradients, and no textures anywhere in the build. Depth is expressed only by layering flat colour: cream water is the sea, lands (lobes, blobs) sit on it, and paper or water cards sit inside a land (the lobby QR card inside the green blob). Selection emphasis is a ring, not a lift: the correct answer gets a 4px ink ring with a 4px cream offset and a 1.03 scale.
 
 ### Named Rules
-**The Housing, Not Cards Rule.** Inside the board, separate things with tone steps and the lattice, never with shadows or borders. Shadows belong only to objects standing on the ground.
+**The Flat Map Rule.** Nothing casts a shadow. If a surface needs to stand apart, place it on a different flat colour or ring it in ink.
 
 ## Shapes
 
-Hardware with softened corners. The scoreboard housing is the largest radius (28px); panels inside it step down to 16px, cells and buttons to 12 to 16px, small chips to 6 to 8px, so nested corners stay concentric. Pills (full radius) are reserved for status, chips and the language toggle. Shot-clock cells are near-square (2px).
+Two families of form. **Organic lands**: SVG coastlines and four blob outlines (`Lobe.jsx`) used for corner lobes, team markers, the brand mark, and the QR land; they are filled flat and never stroked. **Capsules**: every control, chip, status, input, and track is fully rounded (9999px). Larger panels use very soft rectangles: 16px for code cells, 28px for inner preview wells, 36px for answer plates on the phone and the QR card, 40px for full-screen feedback panels, setup cards, and the tops of podium columns.
 
-Recurring silhouettes: the seven-segment digit with hexagonal segment ends; the gate ticket, a paper rectangle with two punched semicircular notches (14px) at mid-height and a dashed perforation, tilted -1.5deg; the authored jersey silhouette carrying a 900-weight number; podium columns rounded only on top; and the ticker separator, a small rotated amber square.
+Rings (2px inset) stand in for borders on inputs, the outline button, the language toggle, and the setup card. Straight rules appear only as data dividers: a 2px ink line under the standings head and above the reveal grid, 1px ink/10 between standings rows.
+
+**The Capsule Rule.** If a user can press it, it is a capsule (or a round chip). No square or slightly-rounded buttons.
 
 ## Components
 
 ### Buttons
-Chunky, signage-scale and physical: they lift on hover and sink on press.
-- **Shape:** gently rounded (16px at lg and xl, 12px at md).
-- **Sizes:** md 48px tall with 18px text, lg 64px with 24px text, xl 80px with 30px text; all Big Shoulders 800 uppercase with a leading lucide icon.
-- **Amber (primary):** Amber fill, Ink text, soft amber bloom. One per action bar: open room, start, show answer, lock in.
-- **Pitch:** Pitch Green fill, white text, for going forward to a new place (join the match, go to the leaderboard).
-- **Board:** Housing Panel fill, white text, for secondary host actions on the board's side (next hint).
-- **Light:** Paper fill with a 2px ink/10 ring, Ink text, for settings and back actions on concrete.
-- **Hover / Press:** spring lift of 2px on hover; on press it drops 4px and scales to 0.98, using the pop spring. Keyboard shortcuts show as a small inline key cap (ink/15, Barlow bold).
-- **Disabled:** 40% opacity, no shadow, not-allowed cursor.
+Tactile capsules with an optional arrow chip that rolls forward.
+- **Shape:** full capsule (9999px). Three sizes: md 48px tall, lg 64px, xl 80px.
+- **Land (default):** land fill, ink uppercase semibold text; hover deepens to land-2.
+- **Ink:** ink fill with cream text; used for secondary-but-strong actions (create room, show answer).
+- **Sun / Coral / Pond:** flat fills with ink text, for contextual actions.
+- **Outline:** transparent with a 2px inset ink ring; hover tints ink at 5%.
+- **Arrow chip:** a round ink chip (36 / 48 / 60px) on the trailing edge carrying an arrow; on an ink button the chip inverts to cream. On hover the chip slides 4px right on the spring.
+- **Press / Disabled:** press scales to 0.96 on the spring; disabled drops to 35% opacity with a not-allowed cursor. Focus is the global 3px pond outline at 3px offset.
 
-### Chips and Status
-- **Board chips:** Housing Panel pills with white or Amber Big Shoulders 800 text (mode, duration, answered count).
-- **Status pill:** Housing pill with Amber text in the host action bar; it turns Hot Lamp with white text when time is up or everyone has answered, and re-enters with the pop spring when its message changes.
-- **Gain badge:** after a reveal, `+N` on Kit Green or an unlit Housing Recess badge, popping in staggered by rank.
+### Chips
+- **Info capsules:** sun or lilac fill, ink 14px semibold, 6px by 16px padding (mode, duration).
+- **Status capsule:** water-2 by default, coral when urgent; enters with a short spring rise.
+- **Gain chip:** land fill for "+points", water-2 with faded ink for none.
 
 ### Cards / Containers
-- **Board housing:** Housing fill, 28px radius, 24 to 40px padding, LED lattice overlay. Holds every readout.
-- **Board cell:** Housing Panel, 16px radius, lattice; landing HOST and JOIN halves, reveal stat tiles.
-- **Hint card:** a locked clue is a Housing row with an unlit digit, a lock icon and a dim label; when opened it springs in from the left as a Paper card with a lit digit tile and Barlow 600 text.
-- **Mode card:** Paper with a 2px ink/10 ring at rest; selected, it becomes an Ink card lifted 4px with an amber check disc.
+- **Corner Style:** 36 to 40px.
+- **Background:** paper with a 2px ink/10 ring (setup card), or a flat land / coral / lilac fill for full-screen feedback panels.
+- **Shadow Strategy:** none (see Elevation & Depth).
+- **Internal Padding:** 20 to 28px.
 
 ### Inputs / Fields
-- **Code input:** six 3:4 LED cells on Housing Panel with the lattice over one real numeric input (paste and one-time-code autofill work). Typed digits pop in at Amber with glow. The active cell gets a 2px Amber ring and a blinking amber underscore; invalid turns the ring Hot Lamp.
-- **Text input:** 64px Paper field, 16px radius, Barlow 700 at 24px, 2px ink/10 ring that grows to a 4px Amber ring on focus.
-- **Range:** native slider with Amber accent.
-- **Global focus:** 3px Amber outline at 3px offset on every focusable element.
+- **Code input:** six paper cells (4:5 aspect, 16px radius, 8px gap) over one real numeric input. Empty ring ink/10, filled ink/25, active ink with a small ink caret bar, invalid coral. Digits pop in on the spring in tabular display type.
+- **Text field:** paper capsule, 64px tall, 2px inset ink/15 ring that turns full ink on focus; 20px semibold entry.
 
 ### Navigation
-The host and landing header is a Housing bar with the wordmark (Big Shoulders 900, 0.08em, white with an Amber full stop), the room code chip in Amber and the VI/EN language toggle: a pill whose active language sits on a sliding Amber pill (shared-layout spring). The ticker always sits directly beneath it.
+- **Language toggle:** a capsule with a 2px inset ink ring holding VI / EN segments; the active segment is an ink pill with cream text that slides between options on the spring (shared layout).
+- **Brand:** a small land blob beside "Quizmap" in 20px display type.
 
-### Ticker (signature)
-The scoreboard's crawling message strip: Housing with lattice, Amber Ticker type, items separated by rotated amber squares, crawling left over 28s, edges faded into the housing. It is a polite live region and stops under reduced motion. Waiting, counts, instructions and confirmations print here.
+### Team Blob (signature)
+A team is a flat organic blob in its kit colour with its number in ink display type, sized from 16px dots in standings to 160px on the player's waiting screen, where it floats gently.
 
-### Shot Clock (signature)
-A row of LED cells (60 on the projector, 30 on the phone, 24 in the setup demo) that go dark as points drain: Amber above half, transitional orange to 20%, Hot Lamp in the last fifth. Lit cells glow; unlit cells are white at 6%. Exposed as a progressbar. It always appears together with the seven-segment live-points and seconds readouts.
+### Time Track (signature)
+A water-2 capsule track (20px on projector, 12px on phone) whose fill drains linearly and shifts land, sun, coral per the Three-Step Track Rule.
 
-### Answer Plates
-Kit Red triangle A, Kit Blue diamond B, Kit Yellow circle C, Kit Green square D. On the projector they spring in staggered; on reveal the correct plate scales to 1.03 with a 6px Ink ring and the rest fade to 28%. On the phone they are 144px-tall 24px-radius pads that scale to 0.92 on tap.
+### Answer Pins (signature)
+Coloured capsules (projector) or 36px-radius plates (phone) in the A to D pin colours, each holding a round cream backing with its filled shape icon, the letter in display type, and the option text. On reveal, wrong pins fade to 30% and the right one gains an ink ring.
 
-### Team Banners and Jerseys
-A kit-coloured banner with a white-backed jersey tile and the team name in Big Shoulders 900. Banners walk on from below with a slight rotation and reshuffle with layout springs. The jersey silhouette also anchors the player's waiting screen (bobbing slowly) and the podium.
+### Corner Lobe (signature)
+One coastline that swells in from a screen corner (spring from 0.6 scale), bleeding off two edges. One land lobe per screen, optionally a smaller pond lobe in the opposite corner.
 
 ### Podium
-Second, first and third columns in kit colours, rounded on top, rising with a slower spring (stiffness 160, damping 16) in the order third, second, first; the winner wears an Amber crown. Scores sit in a small Housing plate in Amber.
+Three kit-coloured columns with 40px top corners rising on a softer spring (revealed 3rd, 2nd, 1st), each topped by its team blob and name; the winner carries a crown icon.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** draw fixed readouts (codes, clocks, counters, live points) with the SVG seven-segment component in Amber on Housing.
-- **Do** print state on the ticker or a board status pill, and say what happens next.
-- **Do** pair every answer colour with its shape (A triangle, B diamond, C circle, D square) so colour is never the only cue.
-- **Do** use the pop spring (stiffness 460, damping 22, mass 0.9) for every state change and entrance.
-- **Do** keep Hot Lamp for time running out and rejection only.
-- **Do** keep nested radii concentric: 28px housing, 16px panels, 12px cells, 8px chips.
-- **Do** use Board Labels only to name a value on the board.
+- **Do** set every screen on cream water (#f5f1e4) with ink (#2c2e2a) text.
+- **Do** put ink text on every colour fill, including all team kits and answer pins.
+- **Do** make every pressable control a full capsule or round chip, with the trailing arrow chip on forward actions.
+- **Do** use the shared spring (stiffness 460, damping 22, mass 0.9) for enters, presses, and layout moves.
+- **Do** show changing numbers in tabular display type on the three-column measurement grid with a label over each value.
+- **Do** pair every answer colour with its shape and letter.
+- **Do** use the 3px pond focus outline at 3px offset for keyboard focus.
 
 ### Don't:
-- **Don't** use toasts, snackbars or modal alerts for game state; the ticker and status pill carry it.
-- **Don't** make purple the field. Kit Purple is one team's kit among eight, never a ground or chrome colour.
-- **Don't** put amber text or digits directly on concrete or paper; on the ground, amber is a filled object with Ink text.
-- **Don't** use kit colours for interface chrome, or set white text below 24px bold on Pitch Green or Kit Green.
-- **Don't** separate things inside the board with borders or shadows; use the tonal steps and the lattice.
-- **Don't** set prompts, clues or explanations in Big Shoulders or in tracked uppercase.
-- **Don't** introduce a second easing family; ambient loops (ticker, cursor blink, waiting dots) are the only non-spring motion.
+- **Don't** use box-shadows, gradients, grain, or dark panels; depth is flat colour layering.
+- **Don't** use white text on a colour fill.
+- **Don't** introduce a second typeface or a weight outside 500, 600, 800.
+- **Don't** add more than one land lobe per screen.
+- **Don't** signal time with any sequence other than land, sun, coral.
+- **Don't** use colour alone to distinguish answers.
